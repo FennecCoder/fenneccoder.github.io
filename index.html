@@ -1,0 +1,3160 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#6C63FF">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="format-detection" content="telephone=no">
+    <!-- Capacitor: NO CSP meta tag - handled by capacitor.config.json -->
+    <meta name="color-scheme" content="light only">
+   
+    <title>تطبيق الرسم والتلوين للأطفال</title>
+
+    <!-- Load Arabic fonts async - won't block rendering -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Tajawal + Cairo for beautiful Arabic text -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=Cairo:wght@400;600;700;800;900&display=swap" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=Cairo:wght@400;600;700;800;900&display=swap"></noscript>
+   
+    <style>
+        /* Fonts with safe system fallbacks - app works even without network */
+        /* Global Arabic text rendering improvements */
+        html, body, button, input, select, textarea {
+            font-family: 'Cairo', 'Tajawal', 'Segoe UI', Tahoma, Arial, sans-serif;
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        /* Better Arabic line height */
+        [lang="ar"], [dir="rtl"], .menu-title, .menu-desc,
+        .section-title, .learning-name, .learning-desc,
+        .item-name, .item-sub, .stat-item, .back-btn {
+            line-height: 1.6;
+            letter-spacing: 0;
+        }
+       
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+       
+        :root {
+            --primary: #FF6B9D;
+            --secondary: #00D9A5;
+            --accent: #FFD93D;
+            --purple: #6C63FF;
+            --blue: #4ECDC4;
+            --green: #26DE81;
+            --orange: #FF9F43;
+            --pink: #FD79A8;
+            --red: #FF6B6B;
+            --dark: #2D3436;
+            --light: #F8F9FA;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --safe-top: env(safe-area-inset-top, 20px);
+            --safe-bottom: env(safe-area-inset-bottom, 20px);
+            --safe-left: env(safe-area-inset-left, 0px);
+            --safe-right: env(safe-area-inset-right, 0px);
+        }
+       
+        body {
+            font-family: 'Cairo', 'Tajawal', 'Segoe UI', Tahoma, Arial, sans-serif;
+            background: var(--gradient-1);
+            height: 100%;
+            width: 100%;
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+            overflow-x: hidden;
+            overflow-y: auto;
+            position: relative;
+            padding-top: env(safe-area-inset-top, 0px);
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+            padding-left: env(safe-area-inset-left, 0px);
+            padding-right: env(safe-area-inset-right, 0px);
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        html {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+       
+        /* Animated Background */
+        .bg-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+       
+        .bg-shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.10;
+            /* Use will-change to offload to GPU, preventing UI thread freeze */
+            will-change: transform;
+            animation: float 30s infinite ease-in-out;
+            /* Pause animation when app is hidden */
+            animation-play-state: running;
+        }
+       
+        .bg-shape:nth-child(1) {
+            width: 300px;
+            height: 300px;
+            background: var(--accent);
+            top: -80px;
+            right: -80px;
+            animation-delay: 0s;
+        }
+       
+        .bg-shape:nth-child(2) {
+            width: 220px;
+            height: 220px;
+            background: var(--secondary);
+            bottom: 15%;
+            left: -60px;
+            animation-delay: -10s;
+        }
+       
+        .bg-shape:nth-child(3) {
+            width: 160px;
+            height: 160px;
+            background: var(--pink);
+            top: 45%;
+            right: 5%;
+            animation-delay: -20s;
+        }
+       
+        @keyframes float {
+            /* Only translate - GPU composited, zero UI thread cost */
+            0%,  100% { transform: translate3d(0,    0,   0); }
+            33%        { transform: translate3d(20px, -20px, 0); }
+            66%        { transform: translate3d(-15px, 15px, 0); }
+        }
+       
+        /* Splash Screen */
+        #splash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient-2);
+            display: -webkit-flex;
+            display: flex;
+            -webkit-flex-direction: column;
+            flex-direction: column;
+            -webkit-justify-content: center;
+            justify-content: center;
+            -webkit-align-items: center;
+            align-items: center;
+            z-index: 10000;
+            -webkit-transition: opacity 0.6s, visibility 0.6s;
+            transition: opacity 0.6s, visibility 0.6s;
+            padding-top: env(safe-area-inset-top, 0px);
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+       
+        #splash.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+       
+        .splash-logo {
+            width: 180px;
+            height: 180px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 70px;
+            box-shadow: 0 25px 70px rgba(0,0,0,0.25);
+            animation: bounce 1.8s infinite;
+        }
+       
+        @keyframes bounce {
+            0%, 100% { transform: translate3d(0, 0, 0); }
+            50%       { transform: translate3d(0, -20px, 0); }
+        }
+        }
+       
+        .splash-title {
+            color: white;
+            font-size: clamp(26px, 8vw, 42px);
+            margin-top: 35px;
+            text-align: center;
+            font-weight: 900;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.2);
+        }
+       
+        .splash-subtitle {
+            color: rgba(255,255,255,0.9);
+            font-size: clamp(16px, 5vw, 22px);
+            margin-top: 15px;
+            font-weight: 600;
+        }
+       
+        .splash-loader {
+            margin-top: 45px;
+            width: 55px;
+            height: 55px;
+            border: 5px solid rgba(255,255,255,0.25);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+        }
+       
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+       
+        /* Language Selector */
+        .lang-selector {
+            position: fixed;
+            top: calc(env(safe-area-inset-top, 0px) + 12px);
+            right: calc(env(safe-area-inset-right, 0px) + 12px);
+            background: rgba(255,255,255,0.92);
+            border-radius: 50px;
+            padding: 5px;
+            display: flex;
+            gap: 4px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.18);
+            z-index: 1000;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+       
+        .lang-btn {
+            padding: 9px 16px;
+            border: none;
+            border-radius: 50px;
+            background: transparent;
+            font-family: 'Cairo', 'Tajawal', inherit;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.25s ease, box-shadow 0.25s ease;
+            min-height: 40px;
+            min-width: 44px;
+        }
+       
+        .lang-btn.active {
+            background: linear-gradient(135deg, #6C63FF, #4834d4);
+            color: white;
+            box-shadow: 0 4px 14px rgba(108, 99, 255, 0.45);
+        }
+       
+        /* App Container */
+        .app-container {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            padding-top: calc(env(safe-area-inset-top, 0px) + 80px);
+            padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 30px);
+            padding-left: calc(env(safe-area-inset-left, 0px) + 20px);
+            padding-right: calc(env(safe-area-inset-right, 0px) + 20px);
+            min-height: 100%;
+            box-sizing: border-box;
+        }
+       
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+       
+        .header h1 {
+            color: white;
+            font-size: clamp(24px, 8vw, 42px);
+            font-weight: 900;
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+            text-shadow: 3px 3px 10px rgba(0,0,0,0.25);
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+            line-height: 1.3;
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+        }
+       
+        /* Stats Bar */
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+       
+        .stat-item {
+            background: rgba(255,255,255,0.22);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.30);
+            border-radius: 20px;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            color: white;
+            font-weight: 700;
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+            font-size: clamp(13px, 3.5vw, 16px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.10);
+        }
+       
+        .stat-icon {
+            font-size: 20px;
+        }
+       
+        /* Main Menu Grid */
+        .menu-grid {
+            display: -webkit-flex;
+            display: -ms-flexbox;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 18px;
+            margin-bottom: 35px;
+        }
+       
+        .menu-card {
+            background: white;
+            border-radius: 28px;
+            padding: 24px 14px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+                        box-shadow 0.25s ease;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.10);
+            position: relative;
+            overflow: hidden;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            -webkit-touch-callout: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* Each card gets a unique gradient top accent */
+        .menu-card:nth-child(1)::before { background: linear-gradient(90deg,#FF6B9D,#FF9F43); }
+        .menu-card:nth-child(2)::before { background: linear-gradient(90deg,#4ECDC4,#00D9A5); }
+        .menu-card:nth-child(3)::before { background: linear-gradient(90deg,#6C63FF,#764ba2); }
+        .menu-card:nth-child(4)::before { background: linear-gradient(90deg,#FFD93D,#FF9F43); }
+        .menu-card:nth-child(5)::before { background: linear-gradient(90deg,#FF6B6B,#FF6B9D); }
+        .menu-card:nth-child(6)::before { background: linear-gradient(90deg,#26DE81,#00D9A5); }
+        .menu-card:nth-child(7)::before { background: linear-gradient(90deg,#4facfe,#6C63FF); }
+       
+        .menu-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: var(--gradient-3);
+            border-radius: 28px 28px 0 0;
+        }
+       
+        .menu-card:hover {
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 0 18px 40px rgba(0,0,0,0.16);
+        }
+       
+        .menu-card:active {
+            transform: scale(0.95);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.10);
+        }
+       
+        .menu-icon {
+            font-size: clamp(40px, 10vw, 56px);
+            display: block;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 3px 6px rgba(0,0,0,0.12));
+        }
+       
+        .menu-title {
+            font-size: clamp(14px, 4vw, 18px);
+            color: var(--dark);
+            font-weight: 800;
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+       
+        .menu-desc {
+            font-size: clamp(10px, 2.6vw, 12px);
+            color: #999;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+       
+        /* Section Container */
+        .section {
+            background: white;
+            border-radius: 30px;
+            padding: 22px;
+            padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 30px);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.15);
+            display: none;
+            animation: fadeIn 0.4s ease;
+            margin-bottom: 20px;
+        }
+        
+        .section.active {
+            display: block;
+        }
+       
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+       
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 22px;
+            flex-wrap: wrap;
+        }
+       
+        .back-btn {
+            background: linear-gradient(135deg, #6C63FF, #4834d4);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 18px;
+            font-size: clamp(13px, 3.5vw, 15px);
+            font-family: 'Cairo', 'Tajawal', inherit;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 5px 16px rgba(108, 99, 255, 0.40);
+            min-height: 46px;
+            white-space: nowrap;
+        }
+
+        .back-btn:active {
+            transform: scale(0.94);
+            box-shadow: 0 2px 8px rgba(108, 99, 255, 0.3);
+        }
+       
+        .section-title {
+            font-size: clamp(16px, 5vw, 24px);
+            color: var(--dark);
+            font-weight: 900;
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+            flex: 1;
+            line-height: 1.3;
+        }
+       
+        /* Canvas Area */
+        .canvas-container {
+            position: relative;
+            background: #FAFAFA;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 18px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+       
+        #drawingCanvas, #tracingCanvas {
+            width: 100%;
+            height: clamp(260px, 42vh, 420px);
+            display: block;
+            touch-action: none;
+            border-radius: 20px;
+        }
+       
+        #drawingCanvas {
+            cursor: crosshair;
+        }
+       
+        /* Tools Panel */
+        .tools-panel {
+            background: #F5F6FA;
+            border-radius: 22px;
+            padding: 18px 16px;
+            margin-top: 4px;
+        }
+       
+        .tool-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+       
+        .tool-row:last-child {
+            margin-bottom: 0;
+        }
+       
+        .tool-label {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--dark);
+            min-width: 70px;
+        }
+       
+        .colors-grid {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+       
+        .color-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 3px solid white;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            position: relative;
+        }
+       
+        .color-btn:hover {
+            transform: scale(1.15);
+        }
+       
+        .color-btn.active {
+            transform: scale(1.25);
+            border-color: var(--dark);
+            box-shadow: 0 0 0 3px rgba(0,0,0,0.1), 0 5px 12px rgba(0,0,0,0.2);
+        }
+       
+        .color-btn.active::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+       
+        .size-slider {
+            flex: 1;
+            min-width: 100px;
+            max-width: 180px;
+            height: 10px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: linear-gradient(90deg, #ddd 0%, var(--secondary) 100%);
+            border-radius: 10px;
+            outline: none;
+        }
+       
+        .size-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 26px;
+            height: 26px;
+            background: var(--secondary);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            border: 3px solid white;
+        }
+       
+        .size-preview {
+            width: 45px;
+            height: 45px;
+            background: #eee;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+       
+        .size-dot {
+            background: var(--dark);
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+       
+        /* Action Buttons */
+        .action-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: nowrap;
+            justify-content: center;
+            padding: 4px 2px 8px;
+        }
+       
+        .action-btn {
+            padding: 13px 16px;
+            border: none;
+            border-radius: 16px;
+            font-size: clamp(12px, 3.5vw, 15px);
+            font-family: 'Cairo', 'Tajawal', inherit;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+            flex: 1;
+            min-width: 80px;
+            max-width: 140px;
+            justify-content: center;
+            min-height: 48px;
+        }
+       
+        .action-btn:active {
+            transform: scale(0.93);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+       
+        .btn-undo  { background: linear-gradient(135deg,#FF9F43,#e8890a); color: white; }
+        .btn-clear { background: linear-gradient(135deg,#FF6B6B,#e84040); color: white; }
+        .btn-save  { background: linear-gradient(135deg,#26DE81,#00b894); color: white; }
+        .btn-check { background: linear-gradient(135deg,#6C63FF,#4834d4); color: white; }
+        .btn-next  { background: linear-gradient(135deg,#4ECDC4,#00b5ad); color: white; }
+       
+        /* Category Tabs */
+        .tabs-container {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+       
+        .tab-btn {
+            padding: 10px 18px;
+            background: #F0F0F0;
+            border: none;
+            border-radius: 25px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+       
+        .tab-btn.active {
+            background: var(--secondary);
+            color: white;
+            box-shadow: 0 5px 18px rgba(0, 217, 165, 0.35);
+        }
+       
+        /* Grid Layouts */
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+        }
+       
+        .grid-item {
+            background: white;
+            border-radius: 20px;
+            padding: 16px 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+            border: 2.5px solid transparent;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.07);
+        }
+       
+        .grid-item:active {
+            transform: scale(0.95);
+            border-color: var(--secondary);
+        }
+       
+        .item-emoji {
+            font-size: 42px;
+            margin-bottom: 8px;
+            display: block;
+        }
+       
+        .item-name {
+            font-size: clamp(12px, 3.5vw, 15px);
+            font-weight: 800;
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+            color: var(--dark);
+            margin-bottom: 3px;
+            line-height: 1.4;
+        }
+       
+        .item-sub {
+            font-size: clamp(10px, 2.5vw, 12px);
+            color: #999;
+            font-weight: 500;
+            line-height: 1.3;
+        }
+       
+        /* Tracing Section */
+        .tracing-display {
+            text-align: center;
+            margin-bottom: 18px;
+        }
+       
+        .tracing-letter {
+            font-size: clamp(55px, 18vw, 110px);
+            font-weight: 900;
+            color: var(--purple);
+            text-shadow: 3px 3px 0 rgba(108, 99, 255, 0.15);
+            line-height: 1;
+        }
+       
+        .tracing-name {
+            font-size: clamp(16px, 4.5vw, 22px);
+            color: #666;
+            margin-top: 8px;
+            font-weight: 600;
+        }
+       
+        #tracingCanvas {
+            background: linear-gradient(145deg, #FFFBEB 0%, #FFF 100%);
+            border-radius: 20px;
+            border: 4px solid var(--accent);
+        }
+       
+        .tracing-guide {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: clamp(90px, 28vw, 180px);
+            font-weight: 900;
+            color: rgba(108, 99, 255, 0.06);
+            pointer-events: none;
+            z-index: 0;
+        }
+       
+        /* Learning Card */
+        .learning-card {
+            text-align: center;
+            padding: 25px 18px;
+        }
+       
+        .learning-emoji {
+            font-size: clamp(70px, 22vw, 130px);
+            margin-bottom: 18px;
+            display: block;
+            animation: bounce 2.5s infinite;
+            filter: drop-shadow(0 8px 18px rgba(0,0,0,0.15));
+        }
+       
+        .learning-name {
+            font-size: clamp(24px, 7vw, 38px);
+            color: var(--dark);
+            font-weight: 900;
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+       
+        .learning-desc {
+            font-size: clamp(14px, 4vw, 18px);
+            color: #666;
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+            font-weight: 500;
+            margin-bottom: 25px;
+            line-height: 1.7;
+        }
+       
+        .progress-container {
+            background: #E8E8E8;
+            border-radius: 15px;
+            height: 12px;
+            margin: 22px 0;
+            overflow: hidden;
+        }
+       
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary), var(--blue));
+            border-radius: 15px;
+            transition: width 0.5s ease;
+        }
+       
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 18px;
+            margin-top: 22px;
+        }
+       
+        .nav-btn {
+            width: 62px;
+            height: 62px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, #6C63FF, #4834d4);
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 6px 18px rgba(108, 99, 255, 0.40);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 62px;
+        }
+       
+        .nav-btn:active {
+            transform: scale(0.92);
+            box-shadow: 0 3px 10px rgba(108, 99, 255, 0.30);
+        }
+       
+        .nav-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+       
+        .nav-btn.sound {
+            background: linear-gradient(135deg, #FF9F43, #e8890a);
+            box-shadow: 0 6px 18px rgba(255, 159, 67, 0.40);
+        }
+       
+        /* Math Section */
+        .math-section {
+            text-align: center;
+            padding: 20px;
+        }
+       
+        .math-operations {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+       
+        .op-btn {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            border: none;
+            background: #f0f0f0;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+       
+        .op-btn.active {
+            background: var(--purple);
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(108, 99, 255, 0.4);
+        }
+       
+        .math-question {
+            font-size: clamp(40px, 12vw, 70px);
+            font-weight: 900;
+            color: var(--dark);
+            margin: 30px 0;
+        }
+       
+        .math-visual {
+            font-size: clamp(35px, 10vw, 55px);
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+       
+        .math-answers {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            max-width: 350px;
+            margin: 30px auto 0;
+        }
+       
+        .answer-btn {
+            padding: 20px;
+            border: 3px solid #eee;
+            border-radius: 20px;
+            background: white;
+            font-size: clamp(22px, 7vw, 32px);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+       
+        .answer-btn:hover {
+            border-color: var(--secondary);
+            background: #f8fff8;
+        }
+       
+        .answer-btn.correct {
+            background: var(--green);
+            color: white;
+            border-color: var(--green);
+            animation: pulse 0.5s;
+        }
+       
+        .answer-btn.wrong {
+            background: var(--red);
+            color: white;
+            border-color: var(--red);
+            animation: shake 0.5s;
+        }
+       
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+       
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+       
+        .math-score {
+            font-size: 18px;
+            color: #666;
+            margin-top: 20px;
+        }
+       
+        /* Developer Footer - only shown on home screen */
+        .footer {
+            text-align: center;
+            padding: 28px 20px 20px;
+            color: rgba(255,255,255,0.85);
+            margin-top: 24px;
+            border-top: 1px solid rgba(255,255,255,0.15);
+        }
+       
+        .footer-title {
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+            margin-bottom: 6px;
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+       
+        .footer-link {
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 700;
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+            display: inline-block;
+            margin-bottom: 6px;
+        }
+       
+        .footer-version {
+            font-size: 12px;
+            opacity: 0.55;
+            margin-top: 4px;
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+        }
+       
+        /* Celebration */
+        .celebration-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+       
+        .confetti {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            animation: confettiFall 3s linear forwards;
+        }
+       
+        @keyframes confettiFall {
+            0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+       
+        /* Responsive */
+        @media (max-width: 600px) {
+            .menu-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+           
+            .items-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+           
+            .action-btn {
+                min-width: 70px;
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+        }
+       
+        /* Hide scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 10px; }
+       
+        /* ============================================
+           CAPACITOR / ANDROID / NOTCH FIXES
+           ============================================ */
+
+        /* Fix for Android WebView rendering */
+        * {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Proper safe-area for notch/punch-hole screens */
+        @supports (padding: env(safe-area-inset-top)) {
+            .app-container {
+                padding-top: calc(env(safe-area-inset-top) + 80px);
+                padding-bottom: calc(env(safe-area-inset-bottom) + 30px);
+                padding-left: calc(env(safe-area-inset-left) + 20px);
+                padding-right: calc(env(safe-area-inset-right) + 20px);
+            }
+            .lang-selector {
+                top: calc(env(safe-area-inset-top) + 15px);
+                right: calc(env(safe-area-inset-right) + 15px);
+            }
+        }
+
+        /* Prevent text size adjustment on orientation change */
+        body {
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+        }
+
+        /* Fix buttons for Android WebView - remove native button styling */
+        button {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            outline: none;
+            border: none;
+            background: none;
+            cursor: pointer;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Ensure action buttons have proper touch targets (min 44px) */
+        .action-btn, .back-btn, .nav-btn, .op-btn, .tab-btn, .lang-btn {
+            min-height: 44px;
+            min-width: 44px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            cursor: pointer;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Fix scroll on Android WebView */
+        .app-container {
+            -webkit-overflow-scrolling: touch;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        /* Prevent double-tap zoom on interactive elements */
+        button, .menu-card, .grid-item, .color-btn {
+            touch-action: manipulation;
+        }
+
+        /* Fix for Android status bar overlap */
+        .app-container {
+            padding-top: calc(env(safe-area-inset-top, 0px) + 80px);
+        }
+
+        /* Landscape mode fix */
+        @media screen and (orientation: landscape) {
+            .app-container {
+                padding-left: calc(env(safe-area-inset-left, 0px) + 20px);
+                padding-right: calc(env(safe-area-inset-right, 0px) + 20px);
+            }
+        }
+
+        /* Fix canvas touch on Android */
+        canvas {
+            touch-action: none;
+            -webkit-user-select: none;
+            user-select: none;
+            display: block;
+        }
+
+        /* Ensure sections scroll properly */
+        .section {
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            max-height: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 120px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Shapes -->
+    <div class="bg-shapes">
+        <div class="bg-shape"></div>
+        <div class="bg-shape"></div>
+        <div class="bg-shape"></div>
+    </div>
+   
+    <!-- Splash Screen -->
+    <div id="splash">
+        <div class="splash-logo">🎨✨</div>
+        <div class="splash-title" data-ar="تطبيق الرسم والتعلم" data-en="Drawing & Learning App">تطبيق الرسم والتعلم</div>
+        <div class="splash-subtitle" data-ar="للأطفال من 3-8 سنوات" data-en="For Kids Ages 3-8">للأطفال من 3-8 سنوات</div>
+        <div class="splash-loader"></div>
+    </div>
+   
+    <!-- Celebration Overlay -->
+    <div class="celebration-overlay" id="celebrationOverlay"></div>
+   
+    <!-- Language Selector -->
+    <div class="lang-selector">
+        <button class="lang-btn active" id="langAr">🇸🇦</button>
+        <button class="lang-btn" id="langEn">🇬🇧</button>
+    </div>
+   
+    <div class="app-container">
+        <!-- Header -->
+        <div class="header">
+            <h1 data-ar="🎨 عالم الرسم والتعلم" data-en="🎨 Drawing & Learning World">🎨 عالم الرسم والتعلم</h1>
+        </div>
+       
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <span class="stat-icon">⭐</span>
+                <span id="starsCount">3</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-icon">🏆</span>
+                <span data-ar="المستوى" data-en="Level">المستوى</span>
+                <span id="levelNum">1</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-icon">✨</span>
+                <span id="pointsCount">0</span>
+            </div>
+        </div>
+       
+        <!-- Main Menu -->
+        <div id="mainMenu" class="menu-grid">
+            <div class="menu-card" data-section="drawing" role="button" tabindex="0">
+                <span class="menu-icon">✏️</span>
+                <div class="menu-title" data-ar="الرسم الحر" data-en="Free Drawing">الرسم الحر</div>
+                <div class="menu-desc" data-ar="ارسم ما تحب" data-en="Draw what you love">ارسم ما تحب</div>
+            </div>
+           
+            <div class="menu-card" data-section="coloring" role="button" tabindex="0">
+                <span class="menu-icon">🖼️</span>
+                <div class="menu-title" data-ar="التلوين" data-en="Coloring">التلوين</div>
+                <div class="menu-desc" data-ar="لوّن الصور" data-en="Color pictures">لوّن الصور</div>
+            </div>
+           
+            <div class="menu-card" data-section="vocabulary" role="button" tabindex="0">
+                <span class="menu-icon">🗣️</span>
+                <div class="menu-title" data-ar="المفردات" data-en="Vocabulary">المفردات</div>
+                <div class="menu-desc" data-ar="كلمات جديدة" data-en="New words">كلمات جديدة</div>
+            </div>
+           
+            <div class="menu-card" data-section="tracing" role="button" tabindex="0">
+                <span class="menu-icon">✍️</span>
+                <div class="menu-title" data-ar="تتبع الحروف" data-en="Letter Tracing">تتبع الحروف</div>
+                <div class="menu-desc" data-ar="تعلم الكتابة" data-en="Learn writing">تعلم الكتابة</div>
+            </div>
+           
+            <div class="menu-card" data-section="math" role="button" tabindex="0">
+                <span class="menu-icon">🔢</span>
+                <div class="menu-title" data-ar="الحساب" data-en="Math">الحساب</div>
+                <div class="menu-desc" data-ar="جمع وطرح" data-en="Add & Subtract">جمع وطرح</div>
+            </div>
+           
+            <div class="menu-card" data-section="learning" role="button" tabindex="0">
+                <span class="menu-icon">📚</span>
+                <div class="menu-title" data-ar="تعلم الألوان" data-en="Learn Colors">تعلم الألوان</div>
+                <div class="menu-desc" data-ar="ألوان وأشكال" data-en="Colors & shapes">ألوان وأشكال</div>
+            </div>
+           
+            <div class="menu-card" data-section="numbers" role="button" tabindex="0">
+                <span class="menu-icon">🔢</span>
+                <div class="menu-title" data-ar="الأرقام" data-en="Numbers">الأرقام</div>
+                <div class="menu-desc" data-ar="تعلم العد" data-en="Learn counting">تعلم العد</div>
+            </div>
+        </div>
+
+        <!-- Footer - ONLY on home screen -->
+        <div class="footer" id="mainFooter">
+            <div class="footer-title" data-ar="تم التطوير بواسطة" data-en="Developed by">تم التطوير بواسطة</div>
+            <a href="#" class="footer-link" onclick="return false;">Sami Remili / Fennec Tech 🦊</a>
+            <div class="footer-version">v4.1 | <span data-ar="تطبيقات تعليمية تفاعلية" data-en="Interactive Educational Apps">تطبيقات تعليمية تفاعلية</span></div>
+        </div>
+       
+        <!-- Drawing Section -->
+        <div id="drawingSection" class="section">
+            <div class="section-header">
+                <button class="back-btn" onclick="window.goBack()">
+                    <span>←</span>
+                    <span data-ar="رجوع" data-en="Back">رجوع</span>
+                </button>
+                <div class="section-title" data-ar="الرسم الحر" data-en="Free Drawing">الرسم الحر</div>
+            </div>
+           
+            <div class="canvas-container">
+                <canvas id="drawingCanvas"></canvas>
+            </div>
+           
+            <div class="tools-panel">
+                <div class="tool-row">
+                    <span class="tool-label" data-ar="الألوان" data-en="Colors">الألوان</span>
+                    <div class="colors-grid" id="colorPalette"></div>
+                </div>
+               
+                <div class="tool-row">
+                    <span class="tool-label" data-ar="الحجم" data-en="Size">الحجم</span>
+                    <input type="range" class="size-slider" id="brushSize" min="3" max="40" value="10">
+                    <div class="size-preview">
+                        <div class="size-dot" id="sizeDot"></div>
+                    </div>
+                </div>
+               
+                <div class="action-row">
+                    <button class="action-btn btn-undo" onclick="window.undoDraw()">↩️ <span data-ar="تراجع" data-en="Undo">تراجع</span></button>
+                    <button class="action-btn btn-clear" onclick="window.clearCanvas()">🗑️ <span data-ar="مسح" data-en="Clear">مسح</span></button>
+                    <button class="action-btn btn-save" onclick="window.saveDrawing()">💾 <span data-ar="حفظ" data-en="Save">حفظ</span></button>
+                </div>
+            </div>
+        </div>
+       
+        <!-- Coloring Section -->
+        <div id="coloringSection" class="section">
+            <div class="section-header">
+                <button class="back-btn" onclick="window.goBack()">
+                    <span>←</span>
+                    <span data-ar="رجوع" data-en="Back">رجوع</span>
+                </button>
+                <div class="section-title" data-ar="اختر صورة للتلوين" data-en="Choose a Picture">اختر صورة للتلوين</div>
+            </div>
+           
+            <div class="items-grid" id="coloringGrid"></div>
+        </div>
+       
+        <!-- Vocabulary Section -->
+        <div id="vocabularySection" class="section">
+            <div class="section-header">
+                <button class="back-btn" onclick="window.goBack()">
+                    <span>←</span>
+                    <span data-ar="رجوع" data-en="Back">رجوع</span>
+                </button>
+                <div class="section-title" data-ar="المفردات والتعابير" data-en="Vocabulary">المفردات والتعابير</div>
+            </div>
+           
+            <div class="tabs-container" id="vocabTabs"></div>
+            <div class="items-grid" id="vocabGrid"></div>
+        </div>
+       
+        <!-- Tracing Section -->
+        <div id="tracingSection" class="section">
+            <div class="section-header">
+                <button class="back-btn" onclick="window.goBack()">
+                    <span>←</span>
+                    <span data-ar="رجوع" data-en="Back">رجوع</span>
+                </button>
+                <div class="section-title" data-ar="تتبع الحروف" data-en="Letter Tracing">تتبع الحروف</div>
+            </div>
+           
+            <div class="tabs-container" id="tracingTabs">
+                <button class="tab-btn active" onclick="window.switchTracingScript('arabic', this)" data-ar="العربية" data-en="Arabic">العربية</button>
+                <button class="tab-btn" onclick="window.switchTracingScript('english', this)" data-ar="الإنجليزية" data-en="English">الإنجليزية</button>
+                <button class="tab-btn" onclick="window.switchTracingScript('numbers', this)" data-ar="1 2 3" data-en="1 2 3">1 2 3</button>
+                <button class="tab-btn" onclick="window.switchTracingScript('numbersAr', this)" data-ar="١ ٢ ٣" data-en="١ ٢ ٣">١ ٢ ٣</button>
+            </div>
+           
+            <div class="tracing-display">
+                <div class="tracing-letter" id="tracingLetter">أ</div>
+                <div class="tracing-name" id="tracingLetterName">ألف</div>
+            </div>
+           
+            <div class="canvas-container" style="position: relative;">
+                <canvas id="tracingCanvas"></canvas>
+                <div class="tracing-guide" id="tracingGuide">أ</div>
+            </div>
+           
+            <div class="action-row" style="margin-top: 18px;">
+                <button class="action-btn btn-clear" onclick="window.clearTracing()">🔄 <span data-ar="إعادة" data-en="Reset">إعادة</span></button>
+                <button class="action-btn btn-check" onclick="window.checkTracing()">✅ <span data-ar="تحقق" data-en="Check">تحقق</span></button>
+                <button class="action-btn btn-next" onclick="window.nextTracing()">➡️ <span data-ar="التالي" data-en="Next">التالي</span></button>
+            </div>
+        </div>
+       
+        <!-- Math Section -->
+        <div id="mathSection" class="section">
+            <div class="section-header">
+                <button class="back-btn" onclick="window.goBack()">
+                    <span>←</span>
+                    <span data-ar="رجوع" data-en="Back">رجوع</span>
+                </button>
+                <div class="section-title" data-ar="تعلم الحساب" data-en="Learn Math">تعلم الحساب</div>
+            </div>
+           
+            <div class="math-section">
+                <div class="math-operations">
+                    <button class="op-btn active" onclick="window.setMathOp('+', this)">+</button>
+                    <button class="op-btn" onclick="window.setMathOp('-', this)">−</button>
+                    <button class="op-btn" onclick="window.setMathOp('×', this)">×</button>
+                    <button class="op-btn" onclick="window.setMathOp('÷', this)">÷</button>
+                </div>
+               
+                <div class="math-question" id="mathQuestion">2 + 3 = ?</div>
+                <div class="math-visual" id="mathVisual">🍎🍎 + 🍎🍎🍎</div>
+               
+                <div class="math-answers" id="mathAnswers">
+                    <!-- Generated by JS -->
+                </div>
+               
+                <div class="math-score">
+                    <span data-ar="النتيجة" data-en="Score">النتيجة</span>: <span id="mathScore">0</span>
+                </div>
+            </div>
+        </div>
+       
+        <!-- Learning Section -->
+        <div id="learningSection" class="section">
+            <div class="section-header">
+                <button class="back-btn" onclick="window.goBack()">
+                    <span>←</span>
+                    <span data-ar="رجوع" data-en="Back">رجوع</span>
+                </button>
+                <div class="section-title" data-ar="تعلم الألوان والأشكال" data-en="Learn Colors & Shapes">تعلم الألوان والأشكال</div>
+            </div>
+           
+            <div class="learning-card">
+                <span class="learning-emoji" id="learningEmoji">🔴</span>
+                <div class="learning-name" id="learningName">أحمر</div>
+                <div class="learning-desc" id="learningDesc">هذا اللون الأحمر! مثل التفاحة الحمراء</div>
+               
+                <div class="progress-container">
+                    <div class="progress-fill" id="learningProgress"></div>
+                </div>
+               
+                <div class="nav-buttons">
+                    <button class="nav-btn" onclick="window.prevLearning()">◀</button>
+                    <button class="nav-btn sound" onclick="window.speakLearning()">🔊</button>
+                    <button class="nav-btn" onclick="window.nextLearning()">▶</button>
+                </div>
+            </div>
+        </div>
+       
+        <!-- Numbers Section -->
+        <div id="numbersSection" class="section">
+            <div class="section-header">
+                <button class="back-btn" onclick="window.goBack()">
+                    <span>←</span>
+                    <span data-ar="رجوع" data-en="Back">رجوع</span>
+                </button>
+                <div class="section-title" data-ar="تعلم الأرقام 1-50" data-en="Learn Numbers 1-50">تعلم الأرقام 1-50</div>
+            </div>
+           
+            <div class="learning-card">
+                <span class="learning-emoji" id="numberEmoji">1️⃣</span>
+                <div class="learning-name" id="numberName">واحد</div>
+                <div class="learning-desc" id="numberDesc">هذا الرقم واحد! إصبع واحد 👆</div>
+               
+                <div class="progress-container">
+                    <div class="progress-fill" id="numberProgress"></div>
+                </div>
+               
+                <div class="nav-buttons">
+                    <button class="nav-btn" onclick="window.prevNumber()">◀</button>
+                    <button class="nav-btn sound" onclick="window.speakNumber()">🔊</button>
+                    <button class="nav-btn" onclick="window.nextNumber()">▶</button>
+                </div>
+            </div>
+        </div>
+       
+    </div>
+
+    <script>
+        (function() {
+            // ============================================
+            // MERGED & EXPANDED DATA (v4.1 - Optimized for Capacitor/Google Play)
+            // ============================================
+
+            // تعريف البيانات بشكل آمن قبل أي شيء آخر
+            const colorPalette = [
+                '#1A1A2E', '#E74C3C', '#E67E22', '#F1C40F', '#2ECC71',
+                '#1ABC9C', '#3498DB', '#9B59B6', '#E91E63', '#795548',
+                '#607D8B', '#FFFFFF'
+            ];
+
+            // === EXPANDED COLORING TEMPLATES ===
+            const coloringTemplates = [
+                { emoji: '🐱', ar: 'قطة', en: 'Cat', category: 'animals', difficulty: 'easy' },
+                { emoji: '🐶', ar: 'كلب', en: 'Dog', category: 'animals', difficulty: 'easy' },
+                { emoji: '🐰', ar: 'أرنب', en: 'Rabbit', category: 'animals', difficulty: 'easy' },
+                { emoji: '🐻', ar: 'دب', en: 'Bear', category: 'animals', difficulty: 'medium' },
+                { emoji: '🦁', ar: 'أسد', en: 'Lion', category: 'animals', difficulty: 'medium' },
+                { emoji: '🐘', ar: 'فيل', en: 'Elephant', category: 'animals', difficulty: 'medium' },
+                { emoji: '🦒', ar: 'زرافة', en: 'Giraffe', category: 'animals', difficulty: 'medium' },
+                { emoji: '🐵', ar: 'قرد', en: 'Monkey', category: 'animals', difficulty: 'medium' },
+                { emoji: '🦊', ar: 'ثعلب', en: 'Fox', category: 'animals', difficulty: 'medium' },
+                { emoji: '🐼', ar: 'باندا', en: 'Panda', category: 'animals', difficulty: 'medium' },
+                { emoji: '🐨', ar: 'كوالا', en: 'Koala', category: 'animals', difficulty: 'medium' },
+                { emoji: '🦋', ar: 'فراشة', en: 'Butterfly', category: 'animals', difficulty: 'easy' },
+                { emoji: '🐝', ar: 'نحلة', en: 'Bee', category: 'animals', difficulty: 'easy' },
+                { emoji: '🐠', ar: 'سمكة', en: 'Fish', category: 'animals', difficulty: 'easy' },
+                { emoji: '🐦', ar: 'عصفور', en: 'Bird', category: 'animals', difficulty: 'easy' },
+                { emoji: '🌸', ar: 'وردة', en: 'Rose', category: 'nature', difficulty: 'easy' },
+                { emoji: '🌻', ar: 'دوار الشمس', en: 'Sunflower', category: 'nature', difficulty: 'easy' },
+                { emoji: '🌷', ar: 'خزامى', en: 'Tulip', category: 'nature', difficulty: 'easy' },
+                { emoji: '🌹', ar: 'ورد أحمر', en: 'Red Rose', category: 'nature', difficulty: 'easy' },
+                { emoji: '🌳', ar: 'شجرة', en: 'Tree', category: 'nature', difficulty: 'medium' },
+                { emoji: '🌲', ar: 'صنوبرة', en: 'Pine Tree', category: 'nature', difficulty: 'medium' },
+                { emoji: '🌴', ar: 'نخلة', en: 'Palm Tree', category: 'nature', difficulty: 'medium' },
+                { emoji: '🌵', ar: 'صبار', en: 'Cactus', category: 'nature', difficulty: 'easy' },
+                { emoji: '🍄', ar: 'فطر', en: 'Mushroom', category: 'nature', difficulty: 'easy' },
+                { emoji: '☀️', ar: 'شمس', en: 'Sun', category: 'nature', difficulty: 'easy' },
+                { emoji: '🌙', ar: 'قمر', en: 'Moon', category: 'nature', difficulty: 'easy' },
+                { emoji: '⭐', ar: 'نجمة', en: 'Star', category: 'nature', difficulty: 'easy' },
+                { emoji: '🍎', ar: 'تفاحة', en: 'Apple', category: 'food', difficulty: 'easy' },
+                { emoji: '🍌', ar: 'موزة', en: 'Banana', category: 'food', difficulty: 'easy' },
+                { emoji: '🍊', ar: 'برتقالة', en: 'Orange', category: 'food', difficulty: 'easy' },
+                { emoji: '🍇', ar: 'عنقود عنب', en: 'Grapes', category: 'food', difficulty: 'medium' },
+                { emoji: '🍓', ar: 'فراولة', en: 'Strawberry', category: 'food', difficulty: 'easy' },
+                { emoji: '🍒', ar: 'كرز', en: 'Cherry', category: 'food', difficulty: 'easy' },
+                { emoji: '🍕', ar: 'بيتزا', en: 'Pizza', category: 'food', difficulty: 'medium' },
+                { emoji: '🍔', ar: 'برجر', en: 'Burger', category: 'food', difficulty: 'medium' },
+                { emoji: '🍦', ar: 'آيس كريم', en: 'Ice Cream', category: 'food', difficulty: 'easy' },
+                { emoji: '🍰', ar: 'كعكة', en: 'Cake', category: 'food', difficulty: 'medium' },
+                { emoji: '🍩', ar: 'دونات', en: 'Donut', category: 'food', difficulty: 'easy' },
+                { emoji: '🍪', ar: 'كوكيز', en: 'Cookie', category: 'food', difficulty: 'easy' },
+                { emoji: '🚗', ar: 'سيارة', en: 'Car', category: 'vehicles', difficulty: 'medium' },
+                { emoji: '🚌', ar: 'حافلة', en: 'Bus', category: 'vehicles', difficulty: 'medium' },
+                { emoji: '🚕', ar: 'تاكي', en: 'Taxi', category: 'vehicles', difficulty: 'medium' },
+                { emoji: '🚲', ar: 'دراجة', en: 'Bicycle', category: 'vehicles', difficulty: 'easy' },
+                { emoji: '🛵', ar: 'سكوتر', en: 'Scooter', category: 'vehicles', difficulty: 'easy' },
+                { emoji: '✈️', ar: 'طائرة', en: 'Airplane', category: 'vehicles', difficulty: 'medium' },
+                { emoji: '🚁', ar: 'مروحية', en: 'Helicopter', category: 'vehicles', difficulty: 'hard' },
+                { emoji: '🚢', ar: 'سفينة', en: 'Ship', category: 'vehicles', difficulty: 'hard' },
+                { emoji: '🚀', ar: 'صاروخ', en: 'Rocket', category: 'vehicles', difficulty: 'medium' },
+                { emoji: '🚂', ar: 'قطار', en: 'Train', category: 'vehicles', difficulty: 'medium' },
+                { emoji: '🏠', ar: 'منزل', en: 'House', category: 'objects', difficulty: 'medium' },
+                { emoji: '🏰', ar: 'قلعة', en: 'Castle', category: 'objects', difficulty: 'hard' },
+                { emoji: '🎈', ar: 'بالون', en: 'Balloon', category: 'objects', difficulty: 'easy' },
+                { emoji: '🎁', ar: 'هدية', en: 'Gift', category: 'objects', difficulty: 'easy' },
+                { emoji: '🎨', ar: 'لوحة فنية', en: 'Painting', category: 'objects', difficulty: 'medium' },
+                { emoji: '🎭', ar: 'أقنعة', en: 'Masks', category: 'objects', difficulty: 'medium' },
+                { emoji: '🎪', ar: 'سيرك', en: 'Circus', category: 'objects', difficulty: 'hard' },
+                { emoji: '🎡', ar: 'عجلة ملاهي', en: 'Ferris Wheel', category: 'objects', difficulty: 'hard' },
+                { emoji: '🎠', ar: 'حصان أرجوحة', en: 'Carousel Horse', category: 'objects', difficulty: 'medium' },
+                { emoji: '🧸', ar: 'دبدوب', en: 'Teddy Bear', category: 'objects', difficulty: 'easy' },
+                { emoji: '🤖', ar: 'روبوت', en: 'Robot', category: 'objects', difficulty: 'medium' }
+            ];
+
+            // === EXPANDED VOCABULARY ===
+            const vocabularyData = {
+                greetings: [
+                    { emoji: '👋', ar: 'مرحباً', en: 'Hello', arEx: 'مرحباً يا صديقي!', enEx: 'Hello my friend!' },
+                    { emoji: '🌅', ar: 'صباح الخير', en: 'Good morning', arEx: 'صباح الخير يا أمي', enEx: 'Good morning mom' },
+                    { emoji: '🌆', ar: 'مساء الخير', en: 'Good evening', arEx: 'مساء الخير يا أبي', enEx: 'Good evening dad' },
+                    { emoji: '😴', ar: 'تصبح على خير', en: 'Good night', arEx: 'تصبح على خير يا جدتي', enEx: 'Good night grandma' },
+                    { emoji: '🙏', ar: 'من فضلك', en: 'Please', arEx: 'من فضلك أعطني الماء', enEx: 'Please give me water' },
+                    { emoji: '❤️', ar: 'شكراً', en: 'Thank you', arEx: 'شكراً لمساعدتي', enEx: 'Thank you for helping me' },
+                    { emoji: '😊', ar: 'العفو', en: 'You\'re welcome', arEx: 'العفو يا صديقي', enEx: 'You\'re welcome friend' },
+                    { emoji: '🤝', ar: 'تشرفنا', en: 'Nice to meet you', arEx: 'تشرفنا بمعرفتك', enEx: 'Nice to meet you' },
+                    { emoji: '👋', ar: 'مع السلامة', en: 'Goodbye', arEx: 'مع السلامة أراك غداً', enEx: 'Goodbye see you tomorrow' },
+                    { emoji: '🤗', ar: 'أهلاً وسهلاً', en: 'Welcome', arEx: 'أهلاً وسهلاً بكم', enEx: 'Welcome everyone' },
+                    { emoji: '🙂', ar: 'كيف حالك؟', en: 'How are you?', arEx: 'كيف حالك اليوم؟', enEx: 'How are you today?' },
+                    { emoji: '💬', ar: 'ما اسمك؟', en: 'What\'s your name?', arEx: 'ما اسمك يا صديقي؟', enEx: 'What\'s your name friend?' },
+                    { emoji: '👦', ar: 'اسمي...', en: 'My name is...', arEx: 'اسمي أحمد', enEx: 'My name is Ahmed' },
+                    { emoji: '🇩🇿', ar: 'من أين أنت؟', en: 'Where are you from?', arEx: 'من أين أنت يا صديقي؟', enEx: 'Where are you from?' },
+                    { emoji: '🏠', ar: 'أنا من...', en: 'I am from...', arEx: 'أنا من الجزائر', enEx: 'I am from Algeria' },
+                    { emoji: '🤗', ar: 'تشرفت بمعرفتك', en: 'Nice to meet you', arEx: 'تشرفت بمعرفتك يا جديد', enEx: 'Nice to meet you new friend' },
+                    { emoji: '💭', ar: 'ماذا تفعل؟', en: 'What are you doing?', arEx: 'ماذا تفعل الآن؟', enEx: 'What are you doing now?' },
+                    { emoji: '✅', ar: 'كل شيء جيد', en: 'Everything is fine', arEx: 'كل شيء جيد الحمد لله', enEx: 'Everything is fine, praise God' },
+                    { emoji: '🙋', ar: 'أحتاج مساعدة', en: 'I need help', arEx: 'أحتاج مساعدة من فضلك', enEx: 'I need help please' },
+                    { emoji: '👍', ar: 'حسناً', en: 'Okay', arEx: 'حسناً، فهمت', enEx: 'Okay, I understand' },
+                    { emoji: '👌', ar: 'ممتاز', en: 'Excellent', arEx: 'عمل ممتاز!', enEx: 'Excellent work!' },
+                    { emoji: '🎉', ar: 'مبروك', en: 'Congratulations', arEx: 'مبروك لك!', enEx: 'Congratulations to you!' },
+                    { emoji: '🙌', ar: 'أحسنت', en: 'Well done', arEx: 'أحسنت يا بطل!', enEx: 'Well done champion!' },
+                    { emoji: '💪', ar: 'أستطيع', en: 'I can', arEx: 'أستطيع فعل ذلك!', enEx: 'I can do it!' },
+                    { emoji: '🤔', ar: 'لا أعرف', en: 'I don\'t know', arEx: 'لا أعرف الإجابة', enEx: 'I don\'t know the answer' },
+                    { emoji: '🤷', ar: 'ربما', en: 'Maybe', arEx: 'ربما نعم، ربما لا', enEx: 'Maybe yes, maybe no' },
+                    { emoji: '✅', ar: 'نعم', en: 'Yes', arEx: 'نعم، أريد ذلك', enEx: 'Yes, I want that' },
+                    { emoji: '❌', ar: 'لا', en: 'No', arEx: 'لا، شكراً', enEx: 'No, thank you' },
+                    { emoji: '🤫', ar: 'صمت', en: 'Quiet', arEx: 'من فضلك اصمت', enEx: 'Please be quiet' },
+                    { emoji: '📢', ar: 'استمع', en: 'Listen', arEx: 'استمع جيداً', enEx: 'Listen carefully' },
+                    { emoji: '👀', ar: 'انظر', en: 'Look', arEx: 'انظر إلى هذا', enEx: 'Look at this' },
+                    { emoji: '👆', ar: 'أشر', en: 'Point', arEx: 'أشر بإصبعك', enEx: 'Point with your finger' },
+                    { emoji: '🙏', ar: 'سامحني', en: 'Excuse me', arEx: 'سامحني من فضلك', enEx: 'Excuse me please' },
+                    { emoji: '😔', ar: 'آسف', en: 'Sorry', arEx: 'أنا آسف جداً', enEx: 'I am very sorry' },
+                    { emoji: '🤝', ar: 'صداقة', en: 'Friendship', arEx: 'أحب صداقتك', enEx: 'I love our friendship' },
+                    { emoji: '💕', ar: 'حب', en: 'Love', arEx: 'أحب عائلتي', enEx: 'I love my family' },
+                    { emoji: '🤗', ar: 'عناق', en: 'Hug', arEx: 'أريد عناقاً', enEx: 'I want a hug' },
+                    { emoji: '😘', ar: 'قبلة', en: 'Kiss', arEx: 'قبلة لأمي', enEx: 'A kiss for mom' },
+                    { emoji: '👋', ar: 'تلويح', en: 'Wave', arEx: 'لوح بيدك', enEx: 'Wave your hand' },
+                    { emoji: '👏', ar: 'تصفيق', en: 'Clap', arEx: 'صفق بيديك', enEx: 'Clap your hands' },
+                    { emoji: '💃', ar: 'رقص', en: 'Dance', arEx: 'لنرقص معاً!', enEx: 'Let\'s dance together!' },
+                    { emoji: '🎵', ar: 'غناء', en: 'Sing', arEx: 'لنغني أغنية', enEx: 'Let\'s sing a song' },
+                    { emoji: '😄', ar: 'ضحك', en: 'Laugh', arEx: 'أحب أن أضحك', enEx: 'I love to laugh' },
+                    { emoji: '😊', ar: 'ابتسامة', en: 'Smile', arEx: 'ابتسم دائماً', enEx: 'Always smile' },
+                    { emoji: '🤩', ar: 'مذهل', en: 'Amazing', arEx: 'هذا مذهل!', enEx: 'This is amazing!' },
+                    { emoji: '😍', ar: 'رائع', en: 'Wonderful', arEx: 'يوم رائع!', enEx: 'Wonderful day!' },
+                    { emoji: '🌟', ar: 'ممتاز', en: 'Perfect', arEx: 'أداء ممتاز!', enEx: 'Perfect performance!' },
+                    { emoji: '🏆', ar: 'بطل', en: 'Champion', arEx: 'أنت بطل!', enEx: 'You are a champion!' },
+                    { emoji: '⭐', ar: 'نجم', en: 'Star', arEx: 'أنت نجم!', enEx: 'You are a star!' },
+                    { emoji: '🎊', ar: 'احتفال', en: 'Celebration', arEx: 'لنحتفل معاً!', enEx: 'Let\'s celebrate together!' }
+                ],
+                school: [
+                    { emoji: '🏫', ar: 'مدرسة', en: 'School', arEx: 'أذهب للمدرسة كل يوم', enEx: 'I go to school every day' },
+                    { emoji: '👨‍🏫', ar: 'معلم', en: 'Teacher', arEx: 'المعلم يعطينا الدرس', enEx: 'The teacher gives us lessons' },
+                    { emoji: '👩‍🏫', ar: 'معلمة', en: 'Female Teacher', arEx: 'المعلمة طيبة جداً', enEx: 'The teacher is very kind' },
+                    { emoji: '🎒', ar: 'حقيبة مدرسية', en: 'School bag', arEx: 'حقيبتي مليئة بالكتب', enEx: 'My bag is full of books' },
+                    { emoji: '📚', ar: 'كتاب', en: 'Book', arEx: 'أحب قراءة الكتب', enEx: 'I love reading books' },
+                    { emoji: '✏️', ar: 'قلم رصاص', en: 'Pencil', arEx: 'أكتب بالقلم الرصاص', enEx: 'I write with a pencil' },
+                    { emoji: '🖊️', ar: 'قلم حبر', en: 'Pen', arEx: 'أستخدم قلم الحبر', enEx: 'I use a pen' },
+                    { emoji: '📝', ar: 'دفتر', en: 'Notebook', arEx: 'أكتب واجبي في الدفتر', enEx: 'I write homework in my notebook' },
+                    { emoji: '🪑', ar: 'كرسي', en: 'Chair', arEx: 'أجلس على الكرسي', enEx: 'I sit on the chair' },
+                    { emoji: '🪟', ar: 'مكتب', en: 'Desk', arEx: 'أضع كتبي على المكتب', enEx: 'I put my books on the desk' },
+                    { emoji: '📏', ar: 'مسطرة', en: 'Ruler', arEx: 'أستخدم المسطرة للرسم', enEx: 'I use a ruler for drawing' },
+                    { emoji: '✂️', ar: 'مقص', en: 'Scissors', arEx: 'أقص الورق بالمقص', enEx: 'I cut paper with scissors' },
+                    { emoji: '🎨', ar: 'ألوان', en: 'Colors', arEx: 'أحب التلوين بالألوان', enEx: 'I love coloring with colors' },
+                    { emoji: '🖍️', ar: 'أقلام تلوين', en: 'Crayons', arEx: 'ألواني جميلة جداً', enEx: 'My crayons are very beautiful' },
+                    { emoji: '🧮', ar: 'حاسبة', en: 'Calculator', arEx: 'أستخدم الحاسبة في الحساب', enEx: 'I use calculator for math' },
+                    { emoji: '📖', ar: 'قراءة', en: 'Reading', arEx: 'أقرأ قصة كل يوم', enEx: 'I read a story every day' },
+                    { emoji: '✍️', ar: 'كتابة', en: 'Writing', arEx: 'أتعلم الكتابة', enEx: 'I am learning to write' },
+                    { emoji: '🔢', ar: 'رياضيات', en: 'Math', arEx: 'أحب درس الرياضيات', enEx: 'I love math class' },
+                    { emoji: '🌍', ar: 'جغرافيا', en: 'Geography', arEx: 'أتعلم عن البلدان', enEx: 'I learn about countries' },
+                    { emoji: '🔬', ar: 'علوم', en: 'Science', arEx: 'أجري تجارب علمية', enEx: 'I do science experiments' },
+                    { emoji: '🎭', ar: 'مسرح', en: 'Drama', arEx: 'أمثل في المسرح المدرسي', enEx: 'I act in school plays' },
+                    { emoji: '🎵', ar: 'موسيقى', en: 'Music', arEx: 'أغني في درس الموسيقى', enEx: 'I sing in music class' },
+                    { emoji: '⚽', ar: 'رياضة', en: 'Sports', arEx: 'ألعب كرة القدم', enEx: 'I play football' },
+                    { emoji: '🎨', ar: 'رسم', en: 'Art', arEx: 'أرسم صوراً جميلة', enEx: 'I draw beautiful pictures' },
+                    { emoji: '💻', ar: 'حاسوب', en: 'Computer', arEx: 'أتعلم على الحاسوب', enEx: 'I learn on the computer' },
+                    { emoji: '🖱️', ar: 'فأرة', en: 'Mouse', arEx: 'أستخدم الفأرة', enEx: 'I use the mouse' },
+                    { emoji: '⌨️', ar: 'لوحة مفاتيح', en: 'Keyboard', arEx: 'أكتب على لوحة المفاتيح', enEx: 'I type on the keyboard' },
+                    { emoji: '🖥️', ar: 'شاشة', en: 'Screen', arEx: 'أنظر إلى الشاشة', enEx: 'I look at the screen' },
+                    { emoji: '🔔', ar: 'جرس', en: 'Bell', arEx: 'يدق الجرس للإستراحة', enEx: 'The bell rings for break' },
+                    { emoji: '🚪', ar: 'باب', en: 'Door', arEx: 'أدخل من باب المدرسة', enEx: 'I enter through the school door' },
+                    { emoji: '🪟', ar: 'نافذة', en: 'Window', arEx: 'أفتح النافذة للتهوية', enEx: 'I open the window for air' },
+                    { emoji: '💡', ar: 'مصباح', en: 'Light', arEx: 'المصباح يضيء الفصل', enEx: 'The light illuminates the classroom' },
+                    { emoji: '🧹', ar: 'مكنسة', en: 'Broom', arEx: 'ننظف الفصل بالمكنسة', enEx: 'We clean the classroom with a broom' },
+                    { emoji: '🗑️', ar: 'سلة مهملات', en: 'Trash bin', arEx: 'أرمي القمامة في السلة', enEx: 'I throw trash in the bin' },
+                    { emoji: '📋', ar: 'لوحة', en: 'Board', arEx: 'أكتب على اللوحة', enEx: 'I write on the board' },
+                    { emoji: '🧽', ar: 'مسحاة', en: 'Eraser', arEx: 'أمسح اللوحة بالمسحاة', enEx: 'I erase the board' },
+                    { emoji: '📌', ar: 'دبوس', en: 'Pin', arEx: 'أثبت الورق بالدبوس', enEx: 'I pin the paper' },
+                    { emoji: '📎', ar: 'مشبك', en: 'Paperclip', arEx: 'أربط الأوراق بالمشبك', enEx: 'I clip papers together' },
+                    { emoji: '📁', ar: 'ملف', en: 'Folder', arEx: 'أضع أوراقي في الملف', enEx: 'I put my papers in the folder' },
+                    { emoji: '🗂️', ar: 'فهرس', en: 'Index', arEx: 'أرتب كتبي بالفهرس', enEx: 'I organize my books with index' },
+                    { emoji: '📦', ar: 'صندوق', en: 'Box', arEx: 'أضع أدواتي في الصندوق', enEx: 'I put my tools in the box' },
+                    { emoji: '🎯', ar: 'هدف', en: 'Goal', arEx: 'لدي هدف في الدراسة', enEx: 'I have a goal in studying' },
+                    { emoji: '📈', ar: 'تقدم', en: 'Progress', arEx: 'أحرز تقدماً في دراستي', enEx: 'I make progress in my studies' },
+                    { emoji: '🏅', ar: 'جائزة', en: 'Award', arEx: 'فزت بجائزة في المدرسة', enEx: 'I won an award at school' },
+                    { emoji: '🎖️', ar: 'وسام', en: 'Medal', arEx: 'حصلت على وسام التفوق', enEx: 'I got a medal for excellence' },
+                    { emoji: '📜', ar: 'شهادة', en: 'Certificate', arEx: 'أحصل على شهادة النجاح', enEx: 'I get a success certificate' },
+                    { emoji: '🎓', ar: 'تخرج', en: 'Graduation', arEx: 'سأتخرج من المدرسة', enEx: 'I will graduate from school' },
+                    { emoji: '🎒', ar: 'ظَهرية', en: 'Backpack', arEx: 'أحمل ظهريتي على ظهري', enEx: 'I carry my backpack on my back' },
+                    { emoji: '🍎', ar: 'تفاحة للمعلم', en: 'Apple for teacher', arEx: 'أهدي تفاحة للمعلم', enEx: 'I give an apple to the teacher' },
+                    { emoji: '🤝', ar: 'زميل', en: 'Classmate', arEx: 'زميلي يساعدني في الدرس', enEx: 'My classmate helps me with lessons' }
+                ],
+                family: [
+                    { emoji: '👨', ar: 'أب', en: 'Father', arEx: 'أبي يحبني كثيراً', enEx: 'My father loves me a lot' },
+                    { emoji: '👩', ar: 'أم', en: 'Mother', arEx: 'أمي تطبخ طعاماً لذيذاً', enEx: 'My mother cooks delicious food' },
+                    { emoji: '👦', ar: 'أخ', en: 'Brother', arEx: 'أخي يلعب معي', enEx: 'My brother plays with me' },
+                    { emoji: '👧', ar: 'أخت', en: 'Sister', arEx: 'أختي تساعدني في واجبي', enEx: 'My sister helps with homework' },
+                    { emoji: '👴', ar: 'جد', en: 'Grandfather', arEx: 'جدي يروي لي القصص', enEx: 'Grandpa tells me stories' },
+                    { emoji: '👵', ar: 'جدة', en: 'Grandmother', arEx: 'جدتي تصنع الحلوى', enEx: 'Grandma makes sweets' },
+                    { emoji: '👶', ar: 'طفل', en: 'Baby', arEx: 'الطفل صغير ولطيف', enEx: 'The baby is small and cute' },
+                    { emoji: '👨‍👩‍👧‍👦', ar: 'عائلة', en: 'Family', arEx: 'عائلتي جميلة', enEx: 'My family is beautiful' },
+                    { emoji: '🏠', ar: 'منزل', en: 'Home', arEx: 'منزلي دافئ ومريح', enEx: 'My home is warm and cozy' },
+                    { emoji: '🛏️', ar: 'سرير', en: 'Bed', arEx: 'أنام في سريري', enEx: 'I sleep in my bed' },
+                    { emoji: '🚿', ar: 'حمام', en: 'Bathroom', arEx: 'أستحم في الحمام', enEx: 'I take a bath in the bathroom' },
+                    { emoji: '🍽️', ar: 'طعام', en: 'Meal', arEx: 'نتناول الطعام معاً', enEx: 'We eat meals together' },
+                    { emoji: '👨‍🍳', ar: 'طباخ', en: 'Cook', arEx: 'أبي طباخ ممتاز', enEx: 'My dad is an excellent cook' },
+                    { emoji: '🧹', ar: 'تنظيف', en: 'Cleaning', arEx: 'أساعد في تنظيف المنزل', enEx: 'I help clean the house' },
+                    { emoji: '🧺', ar: 'غسيل', en: 'Laundry', arEx: 'أمي تغسل الملابس', enEx: 'Mom washes the clothes' },
+                    { emoji: '🛒', ar: 'تسوق', en: 'Shopping', arEx: 'نذهب للتسوق معاً', enEx: 'We go shopping together' },
+                    { emoji: '🎁', ar: 'هدية', en: 'Gift', arEx: 'أهدي هدية لأمي', enEx: 'I give a gift to mom' },
+                    { emoji: '💝', ar: 'حب', en: 'Love', arEx: 'أحب عائلتي كثيراً', enEx: 'I love my family very much' },
+                    { emoji: '🤗', ar: 'عناق', en: 'Hug', arEx: 'أعطي أبي عناقاً', enEx: 'I give dad a hug' },
+                    { emoji: '😘', ar: 'قبلة', en: 'Kiss', arEx: 'أقبل يد جدتي', enEx: 'I kiss grandma\'s hand' },
+                    { emoji: '👂', ar: 'استماع', en: 'Listening', arEx: 'أستمع لنصائح أبي', enEx: 'I listen to dad\'s advice' },
+                    { emoji: '🗣️', ar: 'كلام', en: 'Talking', arEx: 'أتكلم مع أمي', enEx: 'I talk with mom' },
+                    { emoji: '👀', ar: 'مراقبة', en: 'Watching', arEx: 'أراقب إخوتي الصغار', enEx: 'I watch my younger siblings' },
+                    { emoji: '🤝', ar: 'مساعدة', en: 'Helping', arEx: 'أساعد جدي في الحديقة', enEx: 'I help grandpa in the garden' },
+                    { emoji: '🎮', ar: 'لعب', en: 'Playing', arEx: 'ألعب مع أخي', enEx: 'I play with my brother' },
+                    { emoji: '📚', ar: 'مذاكرة', en: 'Studying', arEx: 'أذاكر مع أختي', enEx: 'I study with my sister' },
+                    { emoji: '🍳', ar: 'طبخ', en: 'Cooking', arEx: 'أساعد أمي في الطبخ', enEx: 'I help mom with cooking' },
+                    { emoji: '🧁', ar: 'خبز', en: 'Baking', arEx: 'نخبز الكعك معاً', enEx: 'We bake cookies together' },
+                    { emoji: '🎨', ar: 'رسم', en: 'Drawing', arEx: 'أرسم صورة للعائلة', enEx: 'I draw a picture of the family' },
+                    { emoji: '📷', ar: 'صورة', en: 'Photo', arEx: 'نلتقط صوراً للعائلة', enEx: 'We take family photos' },
+                    { emoji: '🎬', ar: 'فيلم', en: 'Movie', arEx: 'نشاهد فيلماً معاً', enEx: 'We watch a movie together' },
+                    { emoji: '🎵', ar: 'أغنية', en: 'Song', arEx: 'نغني أغاني معاً', enEx: 'We sing songs together' },
+                    { emoji: '💤', ar: 'نوم', en: 'Sleep', arEx: 'أنام مبكراً كل ليلة', enEx: 'I sleep early every night' },
+                    { emoji: '☀️', ar: 'استيقاظ', en: 'Waking up', arEx: 'أستيقظ مع شروق الشمس', enEx: 'I wake up with the sunrise' },
+                    { emoji: '🦷', ar: 'تفريش', en: 'Brushing', arEx: 'أفرش أسناني صباحاً', enEx: 'I brush my teeth in the morning' },
+                    { emoji: '🚽', ar: 'مرحاض', en: 'Toilet', arEx: 'أستخدم المرحاض بنظافة', enEx: 'I use the toilet cleanly' },
+                    { emoji: '🧴', ar: 'صابون', en: 'Soap', arEx: 'أغسل يدي بالصابون', enEx: 'I wash my hands with soap' },
+                    { emoji: '🪥', ar: 'فرشاة', en: 'Toothbrush', arEx: 'فرشاة أسناني جديدة', enEx: 'My toothbrush is new' },
+                    { emoji: '🪒', ar: 'حلاقة', en: 'Shaving', arEx: 'أبي يحلق لحيته', enEx: 'Dad shaves his beard' },
+                    { emoji: '💇', ar: 'تسريح', en: 'Hair styling', arEx: 'أمي تسرح شعري', enEx: 'Mom styles my hair' },
+                    { emoji: '👗', ar: 'ملابس', en: 'Clothes', arEx: 'أرتدي ملابسي النظيفة', enEx: 'I wear my clean clothes' },
+                    { emoji: '👟', ar: 'حذاء', en: 'Shoes', arEx: 'أربط حذائي جيداً', enEx: 'I tie my shoes well' },
+                    { emoji: '🧦', ar: 'جوارب', en: 'Socks', arEx: 'جواربي دافئة في الشتاء', enEx: 'My socks are warm in winter' },
+                    { emoji: '🧥', ar: 'معطف', en: 'Coat', arEx: 'أرتدي معطفي في البرد', enEx: 'I wear my coat in cold weather' },
+                    { emoji: '🧣', ar: 'وشاح', en: 'Scarf', arEx: 'وشاحي أحمر وجميل', enEx: 'My scarf is red and beautiful' },
+                    { emoji: '🧤', ar: 'قفازات', en: 'Gloves', arEx: 'أرتدي قفازاتي في الثلج', enEx: 'I wear gloves in the snow' },
+                    { emoji: '🧢', ar: 'قبعة', en: 'Cap', arEx: 'قبعتي تحميني من الشمس', enEx: 'My cap protects me from the sun' },
+                    { emoji: '🕶️', ar: 'نظارة', en: 'Sunglasses', arEx: 'نظارتي الشمسية رائعة', enEx: 'My sunglasses are cool' },
+                    { emoji: '🎒', ar: 'حقيبة', en: 'Bag', arEx: 'حقيبتي تحتوي على كل شيء', enEx: 'My bag has everything' },
+                    { emoji: '🔑', ar: 'مفتاح', en: 'Key', arEx: 'مفتاح منزلي معي دائماً', enEx: 'I always have my house key' },
+                    { emoji: '🏡', ar: 'حديقة المنزل', en: 'Home garden', arEx: 'أسقي نباتات حديقتنا', enEx: 'I water our garden plants' }
+                ],
+                food: [
+                    { emoji: '🍞', ar: 'خبز', en: 'Bread', arEx: 'الخبز طعام مهم', enEx: 'Bread is important food' },
+                    { emoji: '🥛', ar: 'حليب', en: 'Milk', arEx: 'أشرب الحليب كل صباح', enEx: 'I drink milk every morning' },
+                    { emoji: '🍎', ar: 'تفاح', en: 'Apple', arEx: 'التفاح فاكهة لذيذة', enEx: 'Apple is a delicious fruit' },
+                    { emoji: '🍌', ar: 'موز', en: 'Banana', arEx: 'الموز أصفر وحلو', enEx: 'Banana is yellow and sweet' },
+                    { emoji: '🥕', ar: 'جزر', en: 'Carrot', arEx: 'الجزر مفيد للعين', enEx: 'Carrots are good for eyes' },
+                    { emoji: '🍗', ar: 'دجاج', en: 'Chicken', arEx: 'الدجاج طعام شهي', enEx: 'Chicken is tasty food' },
+                    { emoji: '🍚', ar: 'أرز', en: 'Rice', arEx: 'الأرز أبيض ولذيذ', enEx: 'Rice is white and delicious' },
+                    { emoji: '🧀', ar: 'جبنة', en: 'Cheese', arEx: 'الجبنة صفراء وطيبة', enEx: 'Cheese is yellow and tasty' },
+                    { emoji: '🥚', ar: 'بيض', en: 'Egg', arEx: 'البيض مفيد للصحة', enEx: 'Eggs are healthy' },
+                    { emoji: '🧃', ar: 'عصير', en: 'Juice', arEx: 'العصير منعش ولذيذ', enEx: 'Juice is refreshing' }
+                ],
+                animals: [
+                    { emoji: '🐱', ar: 'قطة', en: 'Cat', arEx: 'القطة ناعمة ولطيفة', enEx: 'The cat is soft and cute' },
+                    { emoji: '🐶', ar: 'كلب', en: 'Dog', arEx: 'الكلب وفي وصديق', enEx: 'The dog is loyal and friendly' },
+                    { emoji: '🐦', ar: 'عصفور', en: 'Bird', arEx: 'العصفور يغني جميلاً', enEx: 'The bird sings beautifully' },
+                    { emoji: '🐟', ar: 'سمكة', en: 'Fish', arEx: 'السمكة تسبح في الماء', enEx: 'Fish swim in water' },
+                    { emoji: '🦁', ar: 'أسد', en: 'Lion', arEx: 'الأسد ملك الغابة', enEx: 'Lion is king of the jungle' },
+                    { emoji: '🐘', ar: 'فيل', en: 'Elephant', arEx: 'الفيل كبير وقوي', enEx: 'The elephant is big and strong' },
+                    { emoji: '🦒', ar: 'زرافة', en: 'Giraffe', arEx: 'الزرافة عنقها طويل', enEx: 'Giraffe has a long neck' },
+                    { emoji: '🐰', ar: 'أرنب', en: 'Rabbit', arEx: 'الأرنب سريع ونشيط', enEx: 'Rabbit is fast and active' },
+                    { emoji: '🦋', ar: 'فراشة', en: 'Butterfly', arEx: 'الفراشة جميلة الألوان', enEx: 'Butterfly has beautiful colors' },
+                    { emoji: '🐴', ar: 'حصان', en: 'Horse', arEx: 'الحصان يركض بسرعة', enEx: 'Horse runs fast' }
+                ],
+                feelings: [
+                    { emoji: '😊', ar: 'سعيد', en: 'Happy', arEx: 'أنا سعيد اليوم', enEx: 'I am happy today' },
+                    { emoji: '😢', ar: 'حزين', en: 'Sad', arEx: 'لا تكن حزيناً', enEx: 'Don\'t be sad' },
+                    { emoji: '😠', ar: 'غاضب', en: 'Angry', arEx: 'أنا غاضب منك', enEx: 'I am angry with you' },
+                    { emoji: '😨', ar: 'خائف', en: 'Scared', arEx: 'الطفل خائف من الظلام', enEx: 'The child is scared of dark' },
+                    { emoji: '😴', ar: 'متعب', en: 'Tired', arEx: 'أنا متعب من اللعب', enEx: 'I am tired from playing' },
+                    { emoji: '🤒', ar: 'مريض', en: 'Sick', arEx: 'أشعر أنني مريض', enEx: 'I feel sick' },
+                    { emoji: '😍', ar: 'معجب', en: 'Excited', arEx: 'أنا معجب بهذا!', enEx: 'I love this!' },
+                    { emoji: '🤗', ar: 'متحمس', en: 'Enthusiastic', arEx: 'أنا متحمس للرحلة', enEx: 'I am excited for the trip' }
+                ],
+                weather: [
+                    { emoji: '☀️', ar: 'مشمس', en: 'Sunny', arEx: 'اليوم مشمس وجميل', enEx: 'Today is sunny and beautiful' },
+                    { emoji: '🌧️', ar: 'ممطر', en: 'Rainy', arEx: 'السماء ممطرة اليوم', enEx: 'It\'s rainy today' },
+                    { emoji: '⛅', ar: 'غائم', en: 'Cloudy', arEx: 'السماء غائمة', enEx: 'The sky is cloudy' },
+                    { emoji: '❄️', ar: 'بارد', en: 'Cold', arEx: 'الجو بارد جداً', enEx: 'The weather is very cold' },
+                    { emoji: '🌡️', ar: 'حار', en: 'Hot', arEx: 'الجو حار في الصيف', enEx: 'It\'s hot in summer' },
+                    { emoji: '🌬️', ar: 'عاصف', en: 'Windy', arEx: 'الهواء عاصف اليوم', enEx: 'It\'s windy today' },
+                    { emoji: '⛄', ar: 'ثلج', en: 'Snow', arEx: 'الثلج أبيض وناعم', enEx: 'Snow is white and soft' },
+                    { emoji: '⚡', ar: 'رعد', en: 'Thunder', arEx: 'أسمع صوت الرعد', enEx: 'I hear thunder' }
+                ],
+                places: [
+                    { emoji: '🏠', ar: 'بيت', en: 'House', arEx: 'بيتي كبير وجميل', enEx: 'My house is big and beautiful' },
+                    { emoji: '🏫', ar: 'مدرسة', en: 'School', arEx: 'أذهب للمدرسة صباحاً', enEx: 'I go to school in morning' },
+                    { emoji: '🏥', ar: 'مستشفى', en: 'Hospital', arEx: 'المستشفى يعالج المرضى', enEx: 'Hospital treats sick people' },
+                    { emoji: '🏪', ar: 'سوق', en: 'Market', arEx: 'نشتري الطعام من السوق', enEx: 'We buy food from market' },
+                    { emoji: '🕌', ar: 'مسجد', en: 'Mosque', arEx: 'نصلي في المسجد', enEx: 'We pray in the mosque' },
+                    { emoji: '🏞️', ar: 'حديقة', en: 'Park', arEx: 'ألعب في الحديقة', enEx: 'I play in the park' },
+                    { emoji: '📚', ar: 'مكتبة', en: 'Library', arEx: 'أقرأ في المكتبة', enEx: 'I read in the library' },
+                    { emoji: '🏖️', ar: 'شاطئ', en: 'Beach', arEx: 'أسبح في الشاطئ', enEx: 'I swim at the beach' }
+                ]
+            };
+
+            // === EXPANDED TRACING LETTERS ===
+            const tracingLetters = {
+                arabic: [
+                    'أ', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'س', 'ش',
+                    'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ك', 'ل', 'م', 'ن', 'ه', 'و', 'ي',
+                    'بـ', 'ـبـ', 'ـب', 'تـ', 'ـتـ', 'ـت', 'ثـ', 'ـثـ', 'ـث',
+                    'جـ', 'ـجـ', 'ـج', 'حـ', 'ـحـ', 'ـح', 'خـ', 'ـخـ', 'ـخ',
+                    'سـ', 'ـسـ', 'ـس', 'شـ', 'ـشـ', 'ـش', 'صـ', 'ـصـ', 'ـص',
+                    'ضـ', 'ـضـ', 'ـض', 'طـ', 'ـطـ', 'ـط', 'ظـ', 'ـظـ', 'ـظ',
+                    'عـ', 'ـعـ', 'ـع', 'غـ', 'ـغـ', 'ـغ', 'فـ', 'ـفـ', 'ـف',
+                    'قـ', 'ـقـ', 'ـق', 'كـ', 'ـكـ', 'ـك', 'لـ', 'ـلـ', 'ـل',
+                    'أب', 'أم', 'أخ', 'أن', 'إذ', 'إن', 'أو', 'أي', 'با', 'بي',
+                    'تا', 'تي', 'جا', 'جي', 'حا', 'هي', 'را', 'ري', 'سا', 'سي',
+                    'شا', 'شي', 'فا', 'في', 'قا', 'كي', 'لا', 'لي', 'ما', 'مي',
+                    'باب', 'تاب', 'جاب', 'حاب', 'خاف', 'داب', 'راب', 'ساب', 'شاب', 'طاب',
+                    'فاز', 'قاس', 'كام', 'لام', 'نام', 'هام', 'يام', 'سام', 'رام', 'دام',
+                    'بابا', 'ماما', 'تاتا', 'جدي', 'جدة', 'خالي', 'عمي', 'عمتي',
+                    'يدي', 'رأسي', 'فمي', 'عيني', 'أذني', 'أنفي', 'شعري', 'وجهي',
+                    'بيت', 'باب', 'سقف', 'جدار', 'نافذة', 'باب'
+                ],
+                english: [
+                    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+                    'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+                    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+                    'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+                    'cat', 'bat', 'mat', 'hat', 'rat', 'sat', 'pat', 'fat', 'cap', 'map',
+                    'tap', 'lap', 'nap', 'gap', 'zap',
+                    'bed', 'red', 'pen', 'hen', 'men', 'ten', 'pet', 'jet', 'net', 'vet',
+                    'pig', 'big', 'dig', 'fig', 'wig', 'pin', 'bin', 'win', 'tin', 'fin',
+                    'dog', 'log', 'fog', 'hog', 'pot', 'hot', 'cot', 'dot', 'not', 'lot',
+                    'cup', 'bus', 'mug', 'rug', 'bug', 'hug', 'jug', 'lug', 'pup', 'tub',
+                    'the', 'and', 'is', 'it', 'in', 'on', 'at', 'to', 'me', 'my', 'we', 'go', 'no'
+                ]
+            };
+
+            // === EXPANDED NUMBERS (1-50 western format) ===
+            const numbersData = [
+                { emoji: '1️⃣', ar: 'واحد', en: 'One', arDesc: 'إصبع واحد 👆', enDesc: 'One finger 👆', items: '👆' },
+                { emoji: '2️⃣', ar: 'اثنان', en: 'Two', arDesc: 'إصبعان ✌️', enDesc: 'Two fingers ✌️', items: '✌️' },
+                { emoji: '3️⃣', ar: 'ثلاثة', en: 'Three', arDesc: 'ثلاثة أصابع 🤟', enDesc: 'Three fingers 🤟', items: '🐦🐦🐦' },
+                { emoji: '4️⃣', ar: 'أربعة', en: 'Four', arDesc: 'أربعة أصابع 🖖', enDesc: 'Four fingers 🖖', items: '🐱🐱🐱🐱' },
+                { emoji: '5️⃣', ar: 'خمسة', en: 'Five', arDesc: 'خمسة أصابع ✋', enDesc: 'Five fingers ✋', items: '⭐⭐⭐⭐⭐' },
+                { emoji: '6️⃣', ar: 'ستة', en: 'Six', arDesc: 'ستة أشياء', enDesc: 'Six things', items: '🌸🌸🌸🌸🌸🌸' },
+                { emoji: '7️⃣', ar: 'سبعة', en: 'Seven', arDesc: 'سبعة أشياء', enDesc: 'Seven things', items: '🌈🌈🌈🌈🌈🌈🌈' },
+                { emoji: '8️⃣', ar: 'ثمانية', en: 'Eight', arDesc: 'ثمانية أشياء', enDesc: 'Eight things', items: '🦋🦋🦋🦋🦋🦋🦋🦋' },
+                { emoji: '9️⃣', ar: 'تسعة', en: 'Nine', arDesc: 'تسعة أشياء', enDesc: 'Nine things', items: '🍎🍎🍎🍎🍎🍎🍎🍎🍎' },
+                { emoji: '🔟', ar: 'عشرة', en: 'Ten', arDesc: 'عشرة أصابع 🙌', enDesc: 'Ten fingers 🙌', items: '👋👋👋👋👋👋👋👋👋👋' },
+                { emoji: '🔢', ar: 'أحد عشر', en: 'Eleven', arDesc: 'عشرة وواحد', enDesc: 'Ten and one', items: '🔟+1️⃣' },
+                { emoji: '🔢', ar: 'اثنا عشر', en: 'Twelve', arDesc: 'عشرة واثنان', enDesc: 'Ten and two', items: '🔟+2️⃣' },
+                { emoji: '🔢', ar: 'ثلاثة عشر', en: 'Thirteen', arDesc: 'عشرة وثلاثة', enDesc: 'Ten and three', items: '🔟+3️⃣' },
+                { emoji: '🔢', ar: 'أربعة عشر', en: 'Fourteen', arDesc: 'عشرة وأربعة', enDesc: 'Ten and four', items: '🔟+4️⃣' },
+                { emoji: '🔢', ar: 'خمسة عشر', en: 'Fifteen', arDesc: 'عشرة وخمسة', enDesc: 'Ten and five', items: '🔟+5️⃣' },
+                { emoji: '🔢', ar: 'ستة عشر', en: 'Sixteen', arDesc: 'عشرة وستة', enDesc: 'Ten and six', items: '🔟+6️⃣' },
+                { emoji: '🔢', ar: 'سبعة عشر', en: 'Seventeen', arDesc: 'عشرة وسبعة', enDesc: 'Ten and seven', items: '🔟+7️⃣' },
+                { emoji: '🔢', ar: 'ثمانية عشر', en: 'Eighteen', arDesc: 'عشرة وثمانية', enDesc: 'Ten and eight', items: '🔟+8️⃣' },
+                { emoji: '🔢', ar: 'تسعة عشر', en: 'Nineteen', arDesc: 'عشرة وتسعة', enDesc: 'Ten and nine', items: '🔟+9️⃣' },
+                { emoji: '🔢', ar: 'عشرون', en: 'Twenty', arDesc: 'عشرتان 🙌🙌', enDesc: 'Two tens 🙌🙌', items: '✋✋' },
+                { emoji: '🔢', ar: 'واحد وعشرون', en: 'Twenty-one', arDesc: 'عشرون وواحد', enDesc: 'Twenty and one', items: '2️⃣0️⃣+1️⃣' },
+                { emoji: '🔢', ar: 'اثنان وعشرون', en: 'Twenty-two', arDesc: 'عشرون واثنان', enDesc: 'Twenty and two', items: '2️⃣0️⃣+2️⃣' },
+                { emoji: '🔢', ar: 'ثلاثة وعشرون', en: 'Twenty-three', arDesc: 'عشرون وثلاثة', enDesc: 'Twenty and three', items: '2️⃣0️⃣+3️⃣' },
+                { emoji: '🔢', ar: 'أربعة وعشرون', en: 'Twenty-four', arDesc: 'عشرون وأربعة', enDesc: 'Twenty and four', items: '2️⃣0️⃣+4️⃣' },
+                { emoji: '🔢', ar: 'خمسة وعشرون', en: 'Twenty-five', arDesc: 'عشرون وخمسة', enDesc: 'Twenty and five', items: '2️⃣0️⃣+5️⃣' },
+                { emoji: '🔢', ar: 'ستة وعشرون', en: 'Twenty-six', arDesc: 'عشرون وستة', enDesc: 'Twenty and six', items: '2️⃣0️⃣+6️⃣' },
+                { emoji: '🔢', ar: 'سبعة وعشرون', en: 'Twenty-seven', arDesc: 'عشرون وسبعة', enDesc: 'Twenty and seven', items: '2️⃣0️⃣+7️⃣' },
+                { emoji: '🔢', ar: 'ثمانية وعشرون', en: 'Twenty-eight', arDesc: 'عشرون وثمانية', enDesc: 'Twenty and eight', items: '2️⃣0️⃣+8️⃣' },
+                { emoji: '🔢', ar: 'تسعة وعشرون', en: 'Twenty-nine', arDesc: 'عشرون وتسعة', enDesc: 'Twenty and nine', items: '2️⃣0️⃣+9️⃣' },
+                { emoji: '🔢', ar: 'ثلاثون', en: 'Thirty', arDesc: 'ثلاث عشرات', enDesc: 'Three tens', items: '3️⃣0️⃣' },
+                { emoji: '🔢', ar: 'واحد وثلاثون', en: 'Thirty-one', arDesc: 'ثلاثون وواحد', enDesc: 'Thirty and one', items: '3️⃣0️⃣+1️⃣' },
+                { emoji: '🔢', ar: 'اثنان وثلاثون', en: 'Thirty-two', arDesc: 'ثلاثون واثنان', enDesc: 'Thirty and two', items: '3️⃣0️⃣+2️⃣' },
+                { emoji: '🔢', ar: 'ثلاثة وثلاثون', en: 'Thirty-three', arDesc: 'ثلاثون وثلاثة', enDesc: 'Thirty and three', items: '3️⃣0️⃣+3️⃣' },
+                { emoji: '🔢', ar: 'أربعة وثلاثون', en: 'Thirty-four', arDesc: 'ثلاثون وأربعة', enDesc: 'Thirty and four', items: '3️⃣0️⃣+4️⃣' },
+                { emoji: '🔢', ar: 'خمسة وثلاثون', en: 'Thirty-five', arDesc: 'ثلاثون وخمسة', enDesc: 'Thirty and five', items: '3️⃣0️⃣+5️⃣' },
+                { emoji: '🔢', ar: 'ستة وثلاثون', en: 'Thirty-six', arDesc: 'ثلاثون وستة', enDesc: 'Thirty and six', items: '3️⃣0️⃣+6️⃣' },
+                { emoji: '🔢', ar: 'سبعة وثلاثون', en: 'Thirty-seven', arDesc: 'ثلاثون وسبعة', enDesc: 'Thirty and seven', items: '3️⃣0️⃣+7️⃣' },
+                { emoji: '🔢', ar: 'ثمانية وثلاثون', en: 'Thirty-eight', arDesc: 'ثلاثون وثمانية', enDesc: 'Thirty and eight', items: '3️⃣0️⃣+8️⃣' },
+                { emoji: '🔢', ar: 'تسعة وثلاثون', en: 'Thirty-nine', arDesc: 'ثلاثون وتسعة', enDesc: 'Thirty and nine', items: '3️⃣0️⃣+9️⃣' },
+                { emoji: '🔢', ar: 'أربعون', en: 'Forty', arDesc: 'أربع عشرات', enDesc: 'Four tens', items: '4️⃣0️⃣' },
+                { emoji: '🔢', ar: 'واحد وأربعون', en: 'Forty-one', arDesc: 'أربعون وواحد', enDesc: 'Forty and one', items: '4️⃣0️⃣+1️⃣' },
+                { emoji: '🔢', ar: 'اثنان وأربعون', en: 'Forty-two', arDesc: 'أربعون واثنان', enDesc: 'Forty and two', items: '4️⃣0️⃣+2️⃣' },
+                { emoji: '🔢', ar: 'ثلاثة وأربعون', en: 'Forty-three', arDesc: 'أربعون وثلاثة', enDesc: 'Forty and three', items: '4️⃣0️⃣+3️⃣' },
+                { emoji: '🔢', ar: 'أربعة وأربعون', en: 'Forty-four', arDesc: 'أربعون وأربعة', enDesc: 'Forty and four', items: '4️⃣0️⃣+4️⃣' },
+                { emoji: '🔢', ar: 'خمسة وأربعون', en: 'Forty-five', arDesc: 'أربعون وخمسة', enDesc: 'Forty and five', items: '4️⃣0️⃣+5️⃣' },
+                { emoji: '🔢', ar: 'ستة وأربعون', en: 'Forty-six', arDesc: 'أربعون وستة', enDesc: 'Forty and six', items: '4️⃣0️⃣+6️⃣' },
+                { emoji: '🔢', ar: 'سبعة وأربعون', en: 'Forty-seven', arDesc: 'أربعون وسبعة', enDesc: 'Forty and seven', items: '4️⃣0️⃣+7️⃣' },
+                { emoji: '🔢', ar: 'ثمانية وأربعون', en: 'Forty-eight', arDesc: 'أربعون وثمانية', enDesc: 'Forty and eight', items: '4️⃣0️⃣+8️⃣' },
+                { emoji: '🔢', ar: 'تسعة وأربعون', en: 'Forty-nine', arDesc: 'أربعون وتسعة', enDesc: 'Forty and nine', items: '4️⃣0️⃣+9️⃣' },
+                { emoji: '🔢', ar: 'خمسون', en: 'Fifty', arDesc: 'خمس عشرات! 🎉', enDesc: 'Five tens! 🎉', items: '5️⃣0️⃣🎊' }
+            ];
+
+            // === COLORS & SHAPES DATA ===
+            const colorsData = [
+                { emoji: '🔴', ar: 'أحمر', en: 'Red', arDesc: 'لون التفاحة والورد 🍎🌹', enDesc: 'Color of apples and roses 🍎🌹' },
+                { emoji: '🟠', ar: 'برتقالي', en: 'Orange', arDesc: 'لون البرتقال والشمس 🍊☀️', enDesc: 'Color of oranges and sun 🍊☀️' },
+                { emoji: '🟡', ar: 'أصفر', en: 'Yellow', arDesc: 'لون الموز والليمون 🍌🍋', enDesc: 'Color of bananas and lemons 🍌🍋' },
+                { emoji: '🟢', ar: 'أخضر', en: 'Green', arDesc: 'لون العشب والأشجار 🌿🌳', enDesc: 'Color of grass and trees 🌿🌳' },
+                { emoji: '🔵', ar: 'أزرق', en: 'Blue', arDesc: 'لون السماء والبحر ☁️🌊', enDesc: 'Color of sky and sea ☁️🌊' },
+                { emoji: '🟣', ar: 'بنفسجي', en: 'Purple', arDesc: 'لون العنب والزهور 🍇🌸', enDesc: 'Color of grapes and flowers 🍇🌸' },
+                { emoji: '🩷', ar: 'وردي', en: 'Pink', arDesc: 'لون الزهور والحلوى 🌸🍬', enDesc: 'Color of flowers and candy 🌸🍬' },
+                { emoji: '🤎', ar: 'بني', en: 'Brown', arDesc: 'لون الشوكولاتة والتراب 🍫🪵', enDesc: 'Color of chocolate and soil 🍫🪵' },
+                { emoji: '⬜', ar: 'أبيض', en: 'White', arDesc: 'لون الثلج والقطن ❄️☁️', enDesc: 'Color of snow and cotton ❄️☁️' },
+                { emoji: '⬛', ar: 'أسود', en: 'Black', arDesc: 'لون الليل والقهوة 🌙☕', enDesc: 'Color of night and coffee 🌙☕' },
+                { emoji: '🩶', ar: 'رمادي', en: 'Gray', arDesc: 'لون الفيلة والسحب 🐘☁️', enDesc: 'Color of elephants and clouds 🐘☁️' },
+                { emoji: '🩵', ar: 'أزرق فاتح', en: 'Light Blue', arDesc: 'لون السماء الصافية 💙', enDesc: 'Color of clear sky 💙' },
+                { emoji: '💜', ar: 'أرجواني', en: 'Violet', arDesc: 'لون الزهور البرية 🌷', enDesc: 'Color of wild flowers 🌷' },
+                { emoji: '🧡', ar: 'برتقالي داكن', en: 'Dark Orange', arDesc: 'لون غروب الشمس 🌅', enDesc: 'Color of sunset 🌅' },
+                { emoji: '💚', ar: 'أخضر فاتح', en: 'Lime Green', arDesc: 'لون الليمون الحامض 🍋', enDesc: 'Color of lime 🍋' },
+                { emoji: '🌈', ar: 'قوس قزح', en: 'Rainbow', arDesc: 'كل الألوان معاً! 🎨✨', enDesc: 'All colors together! 🎨✨' }
+            ];
+
+            const shapesData = [
+                { emoji: '🔴', ar: 'دائرة', en: 'Circle', arDesc: 'شكل مستدير بلا زوايا', enDesc: 'Round shape with no corners' },
+                { emoji: '⭕', ar: 'حلقة', en: 'Ring', arDesc: 'دائرة مجوفة في الوسط', enDesc: 'Circle with empty center' },
+                { emoji: '🔺', ar: 'مثلث', en: 'Triangle', arDesc: 'شكل بثلاث زوايا وثلاث أضلاع', enDesc: 'Shape with 3 corners and 3 sides' },
+                { emoji: '🔻', ar: 'مثلث مقلوب', en: 'Inverted Triangle', arDesc: 'مثلث رأسه للأسفل', enDesc: 'Triangle pointing down' },
+                { emoji: '⬜', ar: 'مربع', en: 'Square', arDesc: 'شكل بأربعة أضلاع متساوية', enDesc: 'Shape with 4 equal sides' },
+                { emoji: '🟦', ar: 'مربع أزرق', en: 'Blue Square', arDesc: 'مربع باللون الأزرق', enDesc: 'Square in blue color' },
+                { emoji: '🔲', ar: 'مربع كبير', en: 'Large Square', arDesc: 'مربع بحجم كبير', enDesc: 'Large sized square' },
+                { emoji: '🔳', ar: 'مربع أبيض', en: 'White Square', arDesc: 'مربع باللون الأبيض', enDesc: 'Square in white color' },
+                { emoji: '📐', ar: 'مستطيل', en: 'Rectangle', arDesc: 'شكل طويل بأربعة أضلاع', enDesc: 'Long shape with 4 sides' },
+                { emoji: '📏', ar: 'مسطرة', en: 'Ruler', arDesc: 'أداة لقياس الأطوال', enDesc: 'Tool for measuring length' },
+                { emoji: '🔶', ar: 'معين', en: 'Diamond', arDesc: 'شكل ماسي جميل', enDesc: 'Beautiful diamond shape' },
+                { emoji: '🔷', ar: 'معين أزرق', en: 'Blue Diamond', arDesc: 'معين باللون الأزرق', enDesc: 'Diamond in blue color' },
+                { emoji: '🔸', ar: 'بيضاوي صغير', en: 'Small Oval', arDesc: 'شكل دائري ممدود صغير', enDesc: 'Small stretched round shape' },
+                { emoji: '🔹', ar: 'معين صغير', en: 'Small Diamond', arDesc: 'معين بحجم صغير', enDesc: 'Small sized diamond' },
+                { emoji: '⭐', ar: 'نجمة', en: 'Star', arDesc: 'شكل بخمس رؤوس مضيئة', enDesc: 'Shape with 5 shining points' },
+                { emoji: '🌟', ar: 'نجمة مضيئة', en: 'Glowing Star', arDesc: 'نجمة تلمع وتضئ', enDesc: 'Star that shines and glows' },
+                { emoji: '💫', ar: 'نجمة متحركة', en: 'Moving Star', arDesc: 'نجمة تدور وتتحرك', enDesc: 'Star that spins and moves' },
+                { emoji: '❤️', ar: 'قلب', en: 'Heart', arDesc: 'شكل رمز الحب والعاطفة', enDesc: 'Symbol of love and feelings' },
+                { emoji: '🧡', ar: 'قلب برتقالي', en: 'Orange Heart', arDesc: 'قلب باللون البرتقالي', enDesc: 'Heart in orange color' },
+                { emoji: '💛', ar: 'قلب أصفر', en: 'Yellow Heart', arDesc: 'قلب باللون الأصفر', enDesc: 'Heart in yellow color' },
+                { emoji: '💚', ar: 'قلب أخضر', en: 'Green Heart', arDesc: 'قلب باللون الأخضر', enDesc: 'Heart in green color' },
+                { emoji: '💙', ar: 'قلب أزرق', en: 'Blue Heart', arDesc: 'قلب باللون الأزرق', enDesc: 'Heart in blue color' },
+                { emoji: '💜', ar: 'قلب بنفسجي', en: 'Purple Heart', arDesc: 'قلب باللون البنفسجي', enDesc: 'Heart in purple color' },
+                { emoji: '🖤', ar: 'قلب أسود', en: 'Black Heart', arDesc: 'قلب باللون الأسود', enDesc: 'Heart in black color' },
+                { emoji: '🤍', ar: 'قلب أبيض', en: 'White Heart', arDesc: 'قلب باللون الأبيض', enDesc: 'Heart in white color' },
+                { emoji: '🔟', ar: 'عشاري', en: 'Decagon', arDesc: 'شكل بعشر زوايا', enDesc: 'Shape with 10 corners' },
+                { emoji: '🌀', ar: 'حلزوني', en: 'Spiral', arDesc: 'شكل يدور ويدور', enDesc: 'Shape that spins around' },
+                { emoji: '✴️', ar: 'نجمة ثمانية', en: 'Eight-pointed Star', arDesc: 'نجمة بثمانية رؤوس', enDesc: 'Star with 8 points' },
+                { emoji: '✳️', ar: 'نجمة مضيئة', en: 'Sparkle Star', arDesc: 'نجمة تلمع وتبرق', enDesc: 'Star that sparkles and shines' },
+                { emoji: '❇️', ar: 'نجمة خضراء', en: 'Green Sparkle', arDesc: 'نجمة خضراء لامعة', enDesc: 'Green shining star' }
+            ];
+
+            // === LEARNING DATA (merged colors + shapes) ===
+            const learningData = [
+                ...colorsData.map(c => ({
+                    emoji: c.emoji,
+                    ar: c.ar,
+                    en: c.en,
+                    arDesc: c.arDesc,
+                    enDesc: c.enDesc
+                })),
+                ...shapesData.map(s => ({
+                    emoji: s.emoji,
+                    ar: s.ar,
+                    en: s.en,
+                    arDesc: s.arDesc,
+                    enDesc: s.enDesc
+                }))
+            ];
+
+            // === TRACING DATA (merged) ===
+            const tracingData = {
+                arabic: tracingLetters.arabic.map(l => ({ letter: l, name: l })),
+                english: tracingLetters.english.map(l => ({ letter: l, name: l })),
+                numbers: [
+                    { letter: '1', name: 'One / واحد' },
+                    { letter: '2', name: 'Two / اثنان' },
+                    { letter: '3', name: 'Three / ثلاثة' },
+                    { letter: '4', name: 'Four / أربعة' },
+                    { letter: '5', name: 'Five / خمسة' },
+                    { letter: '6', name: 'Six / ستة' },
+                    { letter: '7', name: 'Seven / سبعة' },
+                    { letter: '8', name: 'Eight / ثمانية' },
+                    { letter: '9', name: 'Nine / تسعة' },
+                    { letter: '10', name: 'Ten / عشرة' }
+                ],
+                numbersAr: [
+                    { letter: '١', name: 'واحد' },
+                    { letter: '٢', name: 'اثنان' },
+                    { letter: '٣', name: 'ثلاثة' },
+                    { letter: '٤', name: 'أربعة' },
+                    { letter: '٥', name: 'خمسة' },
+                    { letter: '٦', name: 'ستة' },
+                    { letter: '٧', name: 'سبعة' },
+                    { letter: '٨', name: 'ثمانية' },
+                    { letter: '٩', name: 'تسعة' },
+                    { letter: '١٠', name: 'عشرة' }
+                ]
+            };
+
+            // ============================================
+            // GLOBAL STATE
+            // ============================================
+            let currentLang = 'ar';
+            let currentSection = 'mainMenu';
+            let drawCanvas, drawCtx;
+            let tracingCanvas, tracingCtx;
+            let isDrawing = false;
+            let currentColor = '#1A1A2E';
+            let brushSize = 10;
+            let undoStack = [];
+            let currentVocabCategory = 'greetings';
+            let currentTracingScript = 'arabic';
+            let currentTracingIndex = 0;
+            let currentLearningIndex = 0;
+            let currentNumberIndex = 0;
+            let stars = 3;
+            let level = 1;
+            let points = 0;
+           
+            // Math State
+            let mathOp = '+';
+            let mathNum1 = 0;
+            let mathNum2 = 0;
+            let mathAnswer = 0;
+            let mathScore = 0;
+
+            // ============================================
+            // UTILITY FUNCTIONS
+            // ============================================
+            function safeGetElement(id) {
+                try {
+                    return document.getElementById(id);
+                } catch(e) {
+                    return null;
+                }
+            }
+
+            // Single shared AudioContext - creating new one per click freezes Android WebView
+            let _sharedAudioCtx = null;
+            function getAudioCtx() {
+                try {
+                    if (!_sharedAudioCtx) {
+                        _sharedAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    }
+                    return _sharedAudioCtx;
+                } catch(e) { return null; }
+            }
+
+            function playClickSound() {
+                // Run in setTimeout to never block the UI thread
+                setTimeout(function() {
+                    try {
+                        const audioCtx = getAudioCtx();
+                        if (!audioCtx) return;
+                        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+                        const oscillator = audioCtx.createOscillator();
+                        const gainNode = audioCtx.createGain();
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioCtx.destination);
+                        oscillator.frequency.value = 800;
+                        oscillator.type = 'sine';
+                        gainNode.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+                        oscillator.start();
+                        oscillator.stop(audioCtx.currentTime + 0.12);
+                    } catch(e) { /* Audio not critical */ }
+                }, 0);
+            }
+           
+            function speakWord(word) {
+                // Run async to avoid blocking UI thread
+                setTimeout(function() {
+                    try {
+                        if ('speechSynthesis' in window) {
+                            // Clean emojis and symbols that cause TTS to say "slash", "emoji" etc.
+                            var cleaned = String(word)
+                                .replace(/[\u{1F000}-\u{1FFFF}]/gu, '')
+                                .replace(/[\u2600-\u27BF]/gu, '')
+                                .replace(/[\uFE00-\uFE0F]/gu, '')  // variation selectors
+                                .replace(/[\u20D0-\u20FF]/gu, '')
+                                .replace(/[\/\\|+*#^~`<>{}[\]]/g, '')
+                                .replace(/\s+/g, ' ')
+                                .trim();
+                            if (!cleaned) return;
+                            window.speechSynthesis.cancel();
+                            const utterance = new SpeechSynthesisUtterance(cleaned);
+                            utterance.lang = currentLang === 'ar' ? 'ar-SA' : 'en-US';
+                            utterance.rate = 0.85;
+                            utterance.pitch = 1.1;
+                            utterance.volume = 1;
+                            window.speechSynthesis.speak(utterance);
+                        }
+                    } catch(e) { /* Speech not critical */ }
+                }, 50);
+            }
+           
+            function showCelebration() {
+                // Use requestAnimationFrame so DOM work happens during idle time
+                requestAnimationFrame(function() {
+                    try {
+                        const container = safeGetElement('celebrationOverlay');
+                        if (!container) return;
+                        
+                        container.innerHTML = '';
+                        const colors = ['#FF6B9D', '#00D9A5', '#FFD93D', '#6C63FF', '#4ECDC4', '#FF9F43'];
+                        const fragment = document.createDocumentFragment(); // Single reflow
+
+                        for (let i = 0; i < 12; i++) { // Reduced from 25 to 12
+                            const confetti = document.createElement('div');
+                            confetti.className = 'confetti';
+                            confetti.style.cssText = [
+                                'left:' + (Math.random() * 100) + '%',
+                                'top:-20px',
+                                'background:' + colors[i % colors.length],
+                                'width:' + (Math.random() * 8 + 7) + 'px',
+                                'height:' + (Math.random() * 8 + 7) + 'px',
+                                'border-radius:' + (Math.random() > 0.5 ? '50%' : '3px'),
+                                'animation:confettiFall ' + (Math.random() * 1.5 + 2) + 's linear forwards',
+                                'animation-delay:' + (i * 0.08) + 's'
+                            ].join(';');
+                            fragment.appendChild(confetti);
+                        }
+                        container.appendChild(fragment); // Single DOM insertion
+
+                        setTimeout(function() {
+                            try { container.innerHTML = ''; } catch(e) {}
+                        }, 3500);
+                    } catch(e) {}
+                });
+            }
+           
+            function addPoints(num) {
+                try {
+                    points += num;
+                    const pointsEl = safeGetElement('pointsCount');
+                    if (pointsEl) pointsEl.textContent = points;
+
+                    if (points >= level * 25) {
+                        level++;
+                        stars = Math.min(stars + 1, 5);
+                        updateStats();
+                    }
+                } catch(e) {
+                    console.error('Add points error:', e);
+                }
+            }
+           
+            function updateStats() {
+                try {
+                    const starsEl = safeGetElement('starsCount');
+                    const levelEl = safeGetElement('levelNum');
+                    const pointsEl = safeGetElement('pointsCount');
+
+                    if (starsEl) starsEl.textContent = stars;
+                    if (levelEl) levelEl.textContent = level;
+                    if (pointsEl) pointsEl.textContent = points;
+                } catch(e) {
+                    console.error('Update stats error:', e);
+                }
+            }
+
+            // ============================================
+            // LANGUAGE FUNCTIONS
+            // ============================================
+            function setLanguage(lang) {
+                try {
+                    currentLang = lang;
+                    const langAr = safeGetElement('langAr');
+                    const langEn = safeGetElement('langEn');
+                    
+                    if (langAr) langAr.classList.toggle('active', lang === 'ar');
+                    if (langEn) langEn.classList.toggle('active', lang === 'en');
+
+                    document.body.dir = lang === 'ar' ? 'rtl' : 'ltr';
+                    document.documentElement.lang = lang;
+
+                    document.querySelectorAll('[data-ar][data-en]').forEach(el => {
+                        const text = el.getAttribute('data-' + lang);
+                        if (text) el.textContent = text;
+                    });
+
+                    generateVocabItems();
+                    updateLearningCard();
+                    updateNumberCard();
+                    updateTracingCard();
+
+                    playClickSound();
+                } catch(e) {
+                    console.error('Set language error:', e);
+                }
+            }
+           
+            // ============================================
+            // NAVIGATION FUNCTIONS
+            // ============================================
+            var _navLock = false; // Prevent double navigation calls on Android
+
+            function openSection(sectionId) {
+                if (_navLock) return;
+                _navLock = true;
+                setTimeout(function() { _navLock = false; }, 600);
+
+                try {
+                    const mainMenu = safeGetElement('mainMenu');
+                    if (mainMenu) {
+                        mainMenu.style.display = 'none';
+                        mainMenu.style.visibility = 'hidden';
+                    }
+                    
+                    // Hide header and stats when in a section
+                    const header = document.querySelector('.header');
+                    const statsBar = document.querySelector('.stats-bar');
+                    const mainFooter = safeGetElement('mainFooter');
+                    if (header) header.style.display = 'none';
+                    if (statsBar) statsBar.style.display = 'none';
+                    if (mainFooter) mainFooter.style.display = 'none';
+
+                    // Reduce top padding in section mode (no header needed)
+                    const appContainer = document.querySelector('.app-container');
+                    if (appContainer) {
+                        appContainer.style.paddingTop = 'calc(env(safe-area-inset-top, 0px) + 20px)';
+                    }
+                    
+                    document.querySelectorAll('.section').forEach(s => {
+                        s.classList.remove('active');
+                        s.style.display = 'none';
+                    });
+
+                    const section = safeGetElement(sectionId + 'Section');
+                    if (section) {
+                        section.style.display = 'block';
+                        section.classList.add('active');
+                        currentSection = sectionId;
+                        // Scroll to top of section
+                        try { document.body.scrollTop = 0; document.documentElement.scrollTop = 0; } catch(e) {}
+
+                        if (sectionId === 'drawing') {
+                            setTimeout(() => {
+                                try { if (drawCanvas && drawCtx) resizeCanvas(drawCanvas, drawCtx); } catch(e) {}
+                            }, 100);
+                        } else if (sectionId === 'tracing') {
+                            setTimeout(() => {
+                                try {
+                                    if (tracingCanvas && tracingCtx) {
+                                        resizeCanvas(tracingCanvas, tracingCtx);
+                                        clearTracing();
+                                    }
+                                } catch(e) {}
+                            }, 100);
+                        }
+                    }
+
+                    playClickSound();
+                } catch(e) {
+                    console.error('Open section error:', e);
+                }
+            }
+           
+            function goBack() {
+                if (_navLock) return;
+                _navLock = true;
+                setTimeout(function() { _navLock = false; }, 600);
+
+                try {
+                    document.querySelectorAll('.section').forEach(s => {
+                        s.classList.remove('active');
+                        s.style.display = 'none';
+                    });
+                    const mainMenu = safeGetElement('mainMenu');
+                    if (mainMenu) {
+                        mainMenu.style.display = 'grid';
+                        mainMenu.style.visibility = 'visible';
+                    }
+                    // Show header, stats and footer again
+                    const header = document.querySelector('.header');
+                    const statsBar = document.querySelector('.stats-bar');
+                    const mainFooter = safeGetElement('mainFooter');
+                    if (header) header.style.display = '';
+                    if (statsBar) statsBar.style.display = '';
+                    if (mainFooter) mainFooter.style.display = '';
+
+                    // Restore original top padding for home screen
+                    const appContainer = document.querySelector('.app-container');
+                    if (appContainer) {
+                        appContainer.style.paddingTop = '';
+                    }
+                    // Scroll to top
+                    try { document.body.scrollTop = 0; document.documentElement.scrollTop = 0; } catch(e) {}
+                    
+                    currentSection = 'mainMenu';
+                    playClickSound();
+                } catch(e) {
+                    console.error('Go back error:', e);
+                }
+            }
+           
+            // ============================================
+            // DRAWING CANVAS
+            // ============================================
+            function initDrawingCanvas() {
+                try {
+                    drawCanvas = safeGetElement('drawingCanvas');
+                    if (!drawCanvas) return;
+                    
+                    drawCtx = drawCanvas.getContext('2d', { alpha: true });
+
+                    resizeCanvas(drawCanvas, drawCtx);
+
+                    // Mouse events
+                    drawCanvas.addEventListener('mousedown', startDrawing);
+                    drawCanvas.addEventListener('mousemove', draw);
+                    drawCanvas.addEventListener('mouseup', stopDrawing);
+                    drawCanvas.addEventListener('mouseout', stopDrawing);
+
+                    // Touch events
+                    drawCanvas.addEventListener('touchstart', handleDrawTouchStart, { passive: false });
+                    drawCanvas.addEventListener('touchmove', handleDrawTouchMove, { passive: false });
+                    drawCanvas.addEventListener('touchend', stopDrawing);
+                    drawCanvas.addEventListener('touchcancel', stopDrawing);
+
+                    const brushSlider = safeGetElement('brushSize');
+                    if (brushSlider) {
+                        brushSlider.addEventListener('input', function() {
+                            brushSize = parseInt(this.value);
+                            updateSizePreview();
+                        });
+                    }
+
+                    updateSizePreview();
+                    clearCanvas(true);
+                } catch(e) {
+                    console.error('Drawing canvas init error:', e);
+                }
+            }
+           
+            function resizeCanvas(canvas, ctx) {
+                try {
+                    const rect = canvas.getBoundingClientRect();
+                    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+                    canvas.width = rect.width * dpr;
+                    canvas.height = rect.height * dpr;
+                    ctx.scale(dpr, dpr);
+                    ctx.lineCap = 'round';
+                    ctx.lineJoin = 'round';
+                } catch(e) {
+                    console.error('Canvas resize error:', e);
+                }
+            }
+           
+            function startDrawing(e) {
+                e.preventDefault();
+                try {
+                    if (!drawCanvas || !drawCtx) return;
+                    isDrawing = true;
+                    const rect = drawCanvas.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    drawCtx.beginPath();
+                    drawCtx.moveTo(x, y);
+                    drawCtx.strokeStyle = currentColor;
+                    drawCtx.lineWidth = brushSize;
+                } catch(e) {
+                    console.error('Start drawing error:', e);
+                }
+            }
+           
+            function draw(e) {
+                if (!isDrawing || !drawCanvas || !drawCtx) return;
+                e.preventDefault();
+                try {
+                    const rect = drawCanvas.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    drawCtx.lineTo(x, y);
+                    drawCtx.stroke();
+                } catch(e) {
+                    console.error('Draw error:', e);
+                }
+            }
+           
+            function stopDrawing() {
+                if (isDrawing) {
+                    isDrawing = false;
+                    saveUndo();
+                }
+            }
+           
+            function handleDrawTouchStart(e) {
+                e.preventDefault();
+                try {
+                    if (!drawCanvas || !drawCtx) return;
+                    const touch = e.touches[0];
+                    const rect = drawCanvas.getBoundingClientRect();
+                    isDrawing = true;
+                    const x = touch.clientX - rect.left;
+                    const y = touch.clientY - rect.top;
+                    drawCtx.beginPath();
+                    drawCtx.moveTo(x, y);
+                    drawCtx.strokeStyle = currentColor;
+                    drawCtx.lineWidth = brushSize;
+                } catch(e) {
+                    console.error('Touch start error:', e);
+                }
+            }
+           
+            function handleDrawTouchMove(e) {
+                if (!isDrawing) return;
+                e.preventDefault();
+                try {
+                    if (!drawCanvas || !drawCtx) return;
+                    const touch = e.touches[0];
+                    const rect = drawCanvas.getBoundingClientRect();
+                    const x = touch.clientX - rect.left;
+                    const y = touch.clientY - rect.top;
+                    drawCtx.lineTo(x, y);
+                    drawCtx.stroke();
+                } catch(e) {
+                    console.error('Touch move error:', e);
+                }
+            }
+           
+            function saveUndo() {
+                try {
+                    if (!drawCanvas) return;
+                    undoStack.push(drawCanvas.toDataURL());
+                    if (undoStack.length > 15) undoStack.shift();
+                } catch(e) {
+                    console.error('Save undo error:', e);
+                }
+            }
+           
+            function undoDraw() {
+                try {
+                    if (undoStack.length > 1 && drawCanvas && drawCtx) {
+                        undoStack.pop();
+                        const img = new Image();
+                        img.onload = () => {
+                            try {
+                                const rect = drawCanvas.getBoundingClientRect();
+                                drawCtx.clearRect(0, 0, rect.width, rect.height);
+                                drawCtx.drawImage(img, 0, 0, rect.width, rect.height);
+                            } catch(e) {
+                                console.error('Undo draw image error:', e);
+                            }
+                        };
+                        img.src = undoStack[undoStack.length - 1];
+                        playClickSound();
+                    }
+                } catch(e) {
+                    console.error('Undo error:', e);
+                }
+            }
+           
+            function clearCanvas(initial = false) {
+                try {
+                    if (!drawCanvas || !drawCtx) return;
+                    const rect = drawCanvas.getBoundingClientRect();
+                    drawCtx.fillStyle = '#FFFFFF';
+                    drawCtx.fillRect(0, 0, rect.width, rect.height);
+                    if (!initial) saveUndo();
+                    playClickSound();
+                } catch(e) {
+                    console.error('Clear canvas error:', e);
+                }
+            }
+           
+            function saveDrawing() {
+                try {
+                    if (!drawCanvas) return;
+                    const link = document.createElement('a');
+                    link.download = 'drawing-' + Date.now() + '.png';
+                    link.href = drawCanvas.toDataURL('image/png');
+                    link.click();
+                    addPoints(5);
+                    showCelebration();
+                    playClickSound();
+                } catch(e) {
+                    console.error('Save drawing error:', e);
+                }
+            }
+           
+            // ============================================
+            // TRACING CANVAS
+            // ============================================
+            function initTracingCanvas() {
+                try {
+                    tracingCanvas = safeGetElement('tracingCanvas');
+                    if (!tracingCanvas) return;
+                    
+                    tracingCtx = tracingCanvas.getContext('2d');
+
+                    resizeCanvas(tracingCanvas, tracingCtx);
+
+                    tracingCanvas.addEventListener('mousedown', startTracing);
+                    tracingCanvas.addEventListener('mousemove', trace);
+                    tracingCanvas.addEventListener('mouseup', stopTracing);
+                    tracingCanvas.addEventListener('mouseout', stopTracing);
+
+                    tracingCanvas.addEventListener('touchstart', handleTracingTouchStart, { passive: false });
+                    tracingCanvas.addEventListener('touchmove', handleTracingTouchMove, { passive: false });
+                    tracingCanvas.addEventListener('touchend', stopTracing);
+                    tracingCanvas.addEventListener('touchcancel', stopTracing);
+                } catch(e) {
+                    console.error('Tracing canvas init error:', e);
+                }
+            }
+           
+            function startTracing(e) {
+                e.preventDefault();
+                try {
+                    if (!tracingCanvas || !tracingCtx) return;
+                    isDrawing = true;
+                    const rect = tracingCanvas.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    tracingCtx.beginPath();
+                    tracingCtx.moveTo(x, y);
+                    tracingCtx.strokeStyle = currentColor;
+                    tracingCtx.lineWidth = brushSize + 5;
+                } catch(e) {
+                    console.error('Start tracing error:', e);
+                }
+            }
+           
+            function trace(e) {
+                if (!isDrawing || !tracingCanvas || !tracingCtx) return;
+                e.preventDefault();
+                try {
+                    const rect = tracingCanvas.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    tracingCtx.lineTo(x, y);
+                    tracingCtx.stroke();
+                } catch(e) {
+                    console.error('Trace error:', e);
+                }
+            }
+           
+            function stopTracing() {
+                isDrawing = false;
+            }
+           
+            function handleTracingTouchStart(e) {
+                e.preventDefault();
+                try {
+                    if (!tracingCanvas || !tracingCtx) return;
+                    const touch = e.touches[0];
+                    const rect = tracingCanvas.getBoundingClientRect();
+                    isDrawing = true;
+                    const x = touch.clientX - rect.left;
+                    const y = touch.clientY - rect.top;
+                    tracingCtx.beginPath();
+                    tracingCtx.moveTo(x, y);
+                    tracingCtx.strokeStyle = currentColor;
+                    tracingCtx.lineWidth = brushSize + 5;
+                } catch(e) {
+                    console.error('Tracing touch start error:', e);
+                }
+            }
+           
+            function handleTracingTouchMove(e) {
+                if (!isDrawing) return;
+                e.preventDefault();
+                try {
+                    if (!tracingCanvas || !tracingCtx) return;
+                    const touch = e.touches[0];
+                    const rect = tracingCanvas.getBoundingClientRect();
+                    const x = touch.clientX - rect.left;
+                    const y = touch.clientY - rect.top;
+                    tracingCtx.lineTo(x, y);
+                    tracingCtx.stroke();
+                } catch(e) {
+                    console.error('Tracing touch move error:', e);
+                }
+            }
+           
+            function clearTracing() {
+                try {
+                    if (!tracingCanvas || !tracingCtx) return;
+                    const rect = tracingCanvas.getBoundingClientRect();
+                    tracingCtx.clearRect(0, 0, rect.width, rect.height);
+                    playClickSound();
+                } catch(e) {
+                    console.error('Clear tracing error:', e);
+                }
+            }
+           
+            function checkTracing() {
+                addPoints(2);
+                showCelebration();
+                const data = tracingData[currentTracingScript];
+                if (data && data[currentTracingIndex]) {
+                    const current = data[currentTracingIndex];
+                    if (current.name) {
+                        speakWord(current.name);
+                    } else {
+                        speakWord(current.letter);
+                    }
+                }
+                playClickSound();
+            }
+           
+            function nextTracing() {
+                const data = tracingData[currentTracingScript];
+                if (data && data.length > 0) {
+                    currentTracingIndex = (currentTracingIndex + 1) % data.length;
+                }
+                updateTracingCard();
+                clearTracing();
+                playClickSound();
+            }
+           
+            function switchTracingScript(script, btn) {
+                try {
+                    currentTracingScript = script;
+                    currentTracingIndex = 0;
+
+                    document.querySelectorAll('#tracingTabs .tab-btn').forEach(b => b.classList.remove('active'));
+                    if (btn) btn.classList.add('active');
+
+                    updateTracingCard();
+                    clearTracing();
+                    playClickSound();
+                } catch(e) {
+                    console.error('Switch tracing script error:', e);
+                }
+            }
+           
+            function updateTracingCard() {
+                try {
+                    const data = tracingData[currentTracingScript];
+                    if (!data || !data[currentTracingIndex]) return;
+
+                    const current = data[currentTracingIndex];
+                    const letterEl = safeGetElement('tracingLetter');
+                    const nameEl = safeGetElement('tracingLetterName');
+                    const guideEl = safeGetElement('tracingGuide');
+
+                    if (letterEl) letterEl.textContent = current.letter;
+                    if (nameEl) nameEl.textContent = current.name || current.letter;
+                    if (guideEl) guideEl.textContent = current.letter;
+                } catch(e) {
+                    console.error('Update tracing card error:', e);
+                }
+            }
+           
+            // ============================================
+            // COLOR PALETTE
+            // ============================================
+            function generateColorPalette() {
+                try {
+                    const container = safeGetElement('colorPalette');
+                    if (!container) return;
+
+                    container.innerHTML = '';
+
+                    colorPalette.forEach((color, i) => {
+                        const btn = document.createElement('button');
+                        btn.className = 'color-btn' + (i === 0 ? ' active' : '');
+                        btn.style.background = color;
+                        if (color === '#FFFFFF') {
+                            btn.style.border = '3px solid #DDD';
+                        }
+                        btn.onclick = function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            selectColor(color, this);
+                        };
+                        container.appendChild(btn);
+                    });
+                } catch(e) {
+                    console.error('Generate color palette error:', e);
+                }
+            }
+           
+            function selectColor(color, btn) {
+                try {
+                    currentColor = color;
+                    document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    playClickSound();
+                } catch(e) {
+                    console.error('Select color error:', e);
+                }
+            }
+           
+            function updateSizePreview() {
+                try {
+                    const dot = safeGetElement('sizeDot');
+                    if (dot) {
+                        dot.style.width = brushSize + 'px';
+                        dot.style.height = brushSize + 'px';
+                    }
+                } catch(e) {
+                    console.error('Update size preview error:', e);
+                }
+            }
+           
+            // ============================================
+            // COLORING TEMPLATES
+            // ============================================
+            function generateColoringTemplates() {
+                try {
+                    const grid = safeGetElement('coloringGrid');
+                    if (!grid) return;
+
+                    grid.innerHTML = '';
+
+                    coloringTemplates.forEach(t => {
+                        const item = document.createElement('div');
+                        item.className = 'grid-item';
+                        item.innerHTML = `
+                            <span class="item-emoji">${t.emoji}</span>
+                            <div class="item-name">${currentLang === 'ar' ? t.ar : t.en}</div>
+                            <div class="item-sub">${currentLang === 'ar' ? t.en : t.ar}</div>
+                        `;
+                        item.onclick = function(e) {
+                            e.preventDefault();
+                            loadTemplate(t);
+                        };
+                        grid.appendChild(item);
+                    });
+                } catch(e) {
+                    console.error('Generate coloring templates error:', e);
+                }
+            }
+           
+            function loadTemplate(t) {
+                try {
+                    openSection('drawing');
+
+                    setTimeout(() => {
+                        try {
+                            if (!drawCanvas || !drawCtx) return;
+                            const rect = drawCanvas.getBoundingClientRect();
+                            drawCtx.fillStyle = '#FFFFFF';
+                            drawCtx.fillRect(0, 0, rect.width, rect.height);
+
+                            drawCtx.font = `${Math.min(rect.width, rect.height) * 0.5}px Arial`;
+                            drawCtx.textAlign = 'center';
+                            drawCtx.textBaseline = 'middle';
+                            drawCtx.fillStyle = 'rgba(200, 200, 200, 0.4)';
+                            drawCtx.fillText(t.emoji, rect.width/2, rect.height/2);
+
+                            saveUndo();
+                            playClickSound();
+                        } catch(e) {
+                            console.error('Load template error:', e);
+                        }
+                    }, 150);
+                } catch(e) {
+                    console.error('Load template outer error:', e);
+                }
+            }
+           
+            // ============================================
+            // VOCABULARY
+            // ============================================
+            function generateVocabTabs() {
+                try {
+                    const container = safeGetElement('vocabTabs');
+                    if (!container) return;
+
+                    container.innerHTML = '';
+
+                    const categories = {
+                        greetings: { ar: 'التحيات', en: 'Greetings' },
+                        school: { ar: 'المدرسة', en: 'School' },
+                        family: { ar: 'العائلة', en: 'Family' },
+                        food: { ar: 'الطعام', en: 'Food' },
+                        animals: { ar: 'الحيوانات', en: 'Animals' },
+                        feelings: { ar: 'المشاعر', en: 'Feelings' },
+                        weather: { ar: 'الطقس', en: 'Weather' },
+                        places: { ar: 'الأماكن', en: 'Places' }
+                    };
+
+                    Object.keys(categories).forEach((key, i) => {
+                        const btn = document.createElement('button');
+                        btn.className = 'tab-btn' + (i === 0 ? ' active' : '');
+                        btn.textContent = currentLang === 'ar' ? categories[key].ar : categories[key].en;
+                        btn.onclick = function(e) {
+                            e.preventDefault();
+                            selectVocabCategory(key, this);
+                        };
+                        container.appendChild(btn);
+                    });
+                } catch(e) {
+                    console.error('Generate vocab tabs error:', e);
+                }
+            }
+           
+            function selectVocabCategory(category, btn) {
+                try {
+                    currentVocabCategory = category;
+                    document.querySelectorAll('#vocabTabs .tab-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    generateVocabItems();
+                    playClickSound();
+                } catch(e) {
+                    console.error('Select vocab category error:', e);
+                }
+            }
+           
+            function generateVocabItems() {
+                try {
+                    const grid = safeGetElement('vocabGrid');
+                    if (!grid) return;
+
+                    grid.innerHTML = '';
+
+                    const items = vocabularyData[currentVocabCategory];
+                    if (!items) return;
+
+                    items.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'grid-item';
+                        div.innerHTML = `
+                            <span class="item-emoji">${item.emoji}</span>
+                            <div class="item-name">${currentLang === 'ar' ? item.ar : item.en}</div>
+                            <div class="item-sub">${currentLang === 'ar' ? item.en : item.ar}</div>
+                        `;
+                        div.onclick = function(e) {
+                            e.preventDefault();
+                            speakWord(currentLang === 'ar' ? item.ar : item.en);
+                            showCelebration();
+                            addPoints(1);
+                        };
+                        grid.appendChild(div);
+                    });
+                } catch(e) {
+                    console.error('Generate vocab items error:', e);
+                }
+            }
+           
+            // ============================================
+            // MATH SECTION
+            // ============================================
+            function setMathOp(op, btn) {
+                try {
+                    mathOp = op;
+                    document.querySelectorAll('.op-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    generateMathQuestion();
+                    playClickSound();
+                } catch(e) {
+                    console.error('Set math op error:', e);
+                }
+            }
+           
+            function generateMathQuestion() {
+                try {
+                    if (mathOp === '+') {
+                        mathNum1 = Math.floor(Math.random() * 10) + 1;
+                        mathNum2 = Math.floor(Math.random() * 10) + 1;
+                        mathAnswer = mathNum1 + mathNum2;
+                    } else if (mathOp === '-') {
+                        mathNum1 = Math.floor(Math.random() * 10) + 5;
+                        mathNum2 = Math.floor(Math.random() * mathNum1) + 1;
+                        mathAnswer = mathNum1 - mathNum2;
+                    } else if (mathOp === '×') {
+                        mathNum1 = Math.floor(Math.random() * 5) + 1;
+                        mathNum2 = Math.floor(Math.random() * 5) + 1;
+                        mathAnswer = mathNum1 * mathNum2;
+                    } else if (mathOp === '÷') {
+                        mathNum2 = Math.floor(Math.random() * 5) + 1;
+                        mathAnswer = Math.floor(Math.random() * 5) + 1;
+                        mathNum1 = mathNum2 * mathAnswer;
+                    }
+
+                    const questionEl = safeGetElement('mathQuestion');
+                    if (questionEl) questionEl.textContent = `${mathNum1} ${mathOp} ${mathNum2} = ?`;
+
+                    let visual = '';
+                    const emoji = ['🍎', '⭐', '🌸', '🦋', '🍊', '🔵'][Math.floor(Math.random() * 6)];
+
+                    if (mathOp === '+') {
+                        visual = emoji.repeat(mathNum1) + ' + ' + emoji.repeat(mathNum2);
+                    } else if (mathOp === '-') {
+                        visual = emoji.repeat(mathNum1) + ' - ' + emoji.repeat(mathNum2);
+                    } else if (mathOp === '×') {
+                        visual = `(${emoji.repeat(mathNum1)}) × ${mathNum2}`;
+                    } else if (mathOp === '÷') {
+                        visual = `${emoji.repeat(mathNum1)} ÷ ${mathNum2}`;
+                    }
+
+                    const visualEl = safeGetElement('mathVisual');
+                    if (visualEl) visualEl.textContent = visual;
+
+                    generateMathAnswers();
+                } catch(e) {
+                    console.error('Generate math question error:', e);
+                }
+            }
+           
+            function generateMathAnswers() {
+                try {
+                    const container = safeGetElement('mathAnswers');
+                    if (!container) return;
+
+                    container.innerHTML = '';
+
+                    let answers = [mathAnswer];
+                    while (answers.length < 4) {
+                        let wrong;
+                        if (mathOp === '+' || mathOp === '×') {
+                            wrong = mathAnswer + Math.floor(Math.random() * 5) - 2;
+                        } else {
+                            wrong = Math.max(0, mathAnswer + Math.floor(Math.random() * 5) - 2);
+                        }
+                        if (wrong >= 0 && !answers.includes(wrong) && wrong <= 50) {
+                            answers.push(wrong);
+                        }
+                    }
+
+                    answers.sort(() => Math.random() - 0.5);
+
+                    answers.forEach(ans => {
+                        const btn = document.createElement('button');
+                        btn.className = 'answer-btn';
+                        btn.textContent = ans;
+                        btn.onclick = function(e) {
+                            e.preventDefault();
+                            checkMathAnswer(ans, this);
+                        };
+                        container.appendChild(btn);
+                    });
+                } catch(e) {
+                    console.error('Generate math answers error:', e);
+                }
+            }
+           
+            function checkMathAnswer(selected, btn) {
+                try {
+                    const buttons = document.querySelectorAll('.answer-btn');
+                    buttons.forEach(b => b.disabled = true);
+
+                    if (selected === mathAnswer) {
+                        btn.classList.add('correct');
+                        mathScore++;
+                        const scoreEl = safeGetElement('mathScore');
+                        if (scoreEl) scoreEl.textContent = mathScore;
+                        addPoints(3);
+                        showCelebration();
+                        speakWord(currentLang === 'ar' ? 'أحسنت!' : 'Correct!');
+                    } else {
+                        btn.classList.add('wrong');
+                        buttons.forEach(b => {
+                            if (parseInt(b.textContent) === mathAnswer) b.classList.add('correct');
+                        });
+                        speakWord(currentLang === 'ar' ? 'حاول مرة أخرى' : 'Try again');
+                    }
+
+                    setTimeout(() => {
+                        try { 
+                            buttons.forEach(b => b.disabled = false);
+                            generateMathQuestion(); 
+                        } catch(e) {}
+                    }, 1500);
+                } catch(e) {
+                    console.error('Check math answer error:', e);
+                }
+            }
+           
+            // ============================================
+            // LEARNING (colors + shapes merged)
+            // ============================================
+            function updateLearningCard() {
+                try {
+                    const item = learningData[currentLearningIndex];
+                    if (!item) return;
+                    
+                    const emojiEl = safeGetElement('learningEmoji');
+                    const nameEl = safeGetElement('learningName');
+                    const descEl = safeGetElement('learningDesc');
+                    const progressEl = safeGetElement('learningProgress');
+
+                    if (emojiEl) emojiEl.textContent = item.emoji;
+                    if (nameEl) nameEl.textContent = currentLang === 'ar' ? item.ar : item.en;
+                    if (descEl) descEl.textContent = currentLang === 'ar' ? item.arDesc : item.enDesc;
+
+                    const progress = ((currentLearningIndex + 1) / learningData.length) * 100;
+                    if (progressEl) progressEl.style.width = progress + '%';
+                } catch(e) {
+                    console.error('Update learning card error:', e);
+                }
+            }
+           
+            function nextLearning() {
+                try {
+                    currentLearningIndex = (currentLearningIndex + 1) % learningData.length;
+                    updateLearningCard();
+                    playClickSound();
+                    showCelebration();
+                    addPoints(1);
+                } catch(e) {
+                    console.error('Next learning error:', e);
+                }
+            }
+           
+            function prevLearning() {
+                try {
+                    currentLearningIndex = (currentLearningIndex - 1 + learningData.length) % learningData.length;
+                    updateLearningCard();
+                    playClickSound();
+                } catch(e) {
+                    console.error('Prev learning error:', e);
+                }
+            }
+           
+            function speakLearning() {
+                try {
+                    const item = learningData[currentLearningIndex];
+                    if (item) {
+                        speakWord(currentLang === 'ar' ? item.ar : item.en);
+                    }
+                } catch(e) {
+                    console.error('Speak learning error:', e);
+                }
+            }
+           
+            // ============================================
+            // NUMBERS
+            // ============================================
+            function updateNumberCard() {
+                try {
+                    const item = numbersData[currentNumberIndex];
+                    if (!item) return;
+                    
+                    const emojiEl = safeGetElement('numberEmoji');
+                    const nameEl = safeGetElement('numberName');
+                    const descEl = safeGetElement('numberDesc');
+                    const progressEl = safeGetElement('numberProgress');
+
+                    if (emojiEl) emojiEl.textContent = item.emoji;
+                    if (nameEl) nameEl.textContent = currentLang === 'ar' ? item.ar : item.en;
+                    // Show only the description text, NOT item.items (emojis cause "slash" in TTS)
+                    if (descEl) descEl.textContent = currentLang === 'ar' ? item.arDesc : item.enDesc;
+
+                    const progress = ((currentNumberIndex + 1) / numbersData.length) * 100;
+                    if (progressEl) progressEl.style.width = progress + '%';
+                } catch(e) {
+                    console.error('Update number card error:', e);
+                }
+            }
+           
+            function nextNumber() {
+                currentNumberIndex = (currentNumberIndex + 1) % numbersData.length;
+                updateNumberCard();
+                playClickSound();
+                showCelebration();
+                addPoints(1);
+            }
+           
+            function prevNumber() {
+                currentNumberIndex = (currentNumberIndex - 1 + numbersData.length) % numbersData.length;
+                updateNumberCard();
+                playClickSound();
+            }
+           
+            function speakNumber() {
+                const item = numbersData[currentNumberIndex];
+                if (!item) return;
+                // Clean emojis and special chars that cause TTS to say "slash" etc.
+                function cleanForTTS(text) {
+                    return text
+                        .replace(/[\u{1F000}-\u{1FFFF}]/gu, '')  // remove emojis
+                        .replace(/[\/\\|+\-*#@^~`<>{}[\]]/g, '') // remove symbols
+                        .replace(/\s+/g, ' ')
+                        .trim();
+                }
+                const name = currentLang === 'ar' ? item.ar : item.en;
+                const desc = currentLang === 'ar' ? item.arDesc : item.enDesc;
+                const toSpeak = cleanForTTS(name + '. ' + desc);
+                speakWord(toSpeak);
+            }
+
+            // ============================================
+            // INITIALIZATION
+            // ============================================
+            function hideSplash() {
+                try {
+                    const splash = safeGetElement('splash');
+                    if (splash) {
+                        splash.classList.add('hidden');
+                        setTimeout(function() {
+                            try {
+                                if (splash.parentNode) splash.parentNode.removeChild(splash);
+                            } catch(e) {}
+                        }, 700);
+                    }
+                } catch(e) {}
+            }
+
+            function init() {
+                try {
+                    // *** AUDIO UNLOCK: Android requires user gesture to start AudioContext ***
+                    document.addEventListener('touchstart', function _audioUnlock() {
+                        try {
+                            const ctx = getAudioCtx();
+                            if (ctx && ctx.state === 'suspended') ctx.resume();
+                        } catch(e) {}
+                        document.removeEventListener('touchstart', _audioUnlock);
+                    }, { passive: true });
+
+                    // Hide splash screen - multiple fallbacks for Android WebView
+                    setTimeout(hideSplash, 2500);
+                    setTimeout(hideSplash, 4000); // extra fallback
+
+                    // *** CRITICAL: Spread heavy work across frames ***
+                    // Frame 1: Init canvases (most critical)
+                    setTimeout(function() {
+                        try { initDrawingCanvas(); } catch(e) {}
+                        try { initTracingCanvas(); } catch(e) {}
+                    }, 100);
+
+                    // Frame 2: Generate palette and templates
+                    setTimeout(function() {
+                        try { generateColorPalette(); } catch(e) {}
+                        try { generateColoringTemplates(); } catch(e) {}
+                    }, 200);
+
+                    // Frame 3: Generate vocab (heavy - lots of DOM)
+                    setTimeout(function() {
+                        try { generateVocabTabs(); } catch(e) {}
+                        try { generateVocabItems(); } catch(e) {}
+                    }, 350);
+
+                    // Frame 4: Remaining lightweight updates
+                    setTimeout(function() {
+                        try { updateLearningCard(); } catch(e) {}
+                        try { updateNumberCard(); } catch(e) {}
+                        try { updateTracingCard(); } catch(e) {}
+                        try { updateStats(); } catch(e) {}
+                        try { generateMathQuestion(); } catch(e) {}
+                    }, 500);
+
+                    // Frame 5: Set up all event listeners
+                    setTimeout(function() {
+
+                    // Set up menu cards with both touch and click events
+                    function setupMenuCard(card) {
+                        var section = card.getAttribute('data-section');
+                        if (!section) return;
+                        
+                        var touchFired = false;
+                        var touchStartX = 0;
+                        var touchStartY = 0;
+                        
+                        card.addEventListener('touchstart', function(e) {
+                            touchStartX = e.touches[0].clientX;
+                            touchStartY = e.touches[0].clientY;
+                            card.style.transform = 'scale(0.96)';
+                        }, { passive: true });
+                        
+                        card.addEventListener('touchend', function(e) {
+                            e.preventDefault(); // Prevent ghost click
+                            card.style.transform = '';
+                            
+                            // Only fire if finger didn't move (not a scroll)
+                            var dx = Math.abs(e.changedTouches[0].clientX - touchStartX);
+                            var dy = Math.abs(e.changedTouches[0].clientY - touchStartY);
+                            if (dx < 10 && dy < 10) {
+                                touchFired = true;
+                                openSection(section);
+                                // Reset flag after click event would have fired
+                                setTimeout(function() { touchFired = false; }, 500);
+                            }
+                        }, { passive: false });
+                        
+                        card.addEventListener('touchcancel', function() {
+                            touchFired = false;
+                            card.style.transform = '';
+                        }, { passive: true });
+                        
+                        // Click handler - only fires if touch didn't already handle it
+                        card.addEventListener('click', function(e) {
+                            if (touchFired) return; // Already handled by touch
+                            e.preventDefault();
+                            openSection(section);
+                        });
+                    }
+                    
+                    document.querySelectorAll('.menu-card[data-section]').forEach(function(card) {
+                        setupMenuCard(card);
+                    });
+
+                    // Set up language buttons
+                    const langAr = safeGetElement('langAr');
+                    const langEn = safeGetElement('langEn');
+                    
+                    if (langAr) {
+                        langAr.onclick = function(e) {
+                            e.preventDefault();
+                            setLanguage('ar');
+                        };
+                    }
+                    
+                    if (langEn) {
+                        langEn.onclick = function(e) {
+                            e.preventDefault();
+                            setLanguage('en');
+                        };
+                    }
+
+                    }, 650); // end Frame 5 setTimeout
+
+                    console.log('App initialized successfully');
+                } catch(e) {
+                    console.error('Initialization error:', e);
+                }
+            }
+
+            // ============================================
+            // EXPOSE FUNCTIONS TO WINDOW FOR ONCLICK
+            // ============================================
+            window.openSection = openSection;
+            window.goBack = goBack;
+            window.undoDraw = undoDraw;
+            window.clearCanvas = clearCanvas;
+            window.saveDrawing = saveDrawing;
+            window.switchTracingScript = switchTracingScript;
+            window.clearTracing = clearTracing;
+            window.checkTracing = checkTracing;
+            window.nextTracing = nextTracing;
+            window.setMathOp = setMathOp;
+            window.prevLearning = prevLearning;
+            window.speakLearning = speakLearning;
+            window.nextLearning = nextLearning;
+            window.prevNumber = prevNumber;
+            window.speakNumber = speakNumber;
+            window.nextNumber = nextNumber;
+
+            // Start the app when DOM is ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+
+            // ============================================
+            // CAPACITOR / ANDROID BACK BUTTON HANDLER
+            // ============================================
+            document.addEventListener('ionBackButton', function(ev) {
+                ev.detail.register(10, function() {
+                    if (currentSection !== 'mainMenu') {
+                        goBack();
+                    }
+                });
+            });
+
+            // Native Android hardware back button via Capacitor App plugin
+            document.addEventListener('deviceready', function() {
+                try {
+                    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
+                        window.Capacitor.Plugins.App.addListener('backButton', function() {
+                            if (currentSection !== 'mainMenu') {
+                                goBack();
+                            }
+                        });
+                    }
+                } catch(e) {}
+            });
+
+            // Prevent context menu and default touch behaviors on Android WebView
+            document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+            document.addEventListener('selectstart', function(e) { e.preventDefault(); });
+
+        })();
+    </script>
+</body>
+</html>
