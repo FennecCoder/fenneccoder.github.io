@@ -31,6 +31,17 @@
             line-height: 1.6;
         }
 
+        /* Language visibility */
+        .ar { display: inline; }
+        .en { display: none; }
+
+        body.lang-en .en { display: inline; }
+        body.lang-en .ar { display: none; }
+
+        /* Direction handling */
+        body.lang-ar { direction: rtl; text-align: right; }
+        body.lang-en { direction: ltr; text-align: left; }
+
         /* Animated Background */
         .bg-animation {
             position: fixed;
@@ -98,6 +109,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 1rem;
         }
 
         .logo {
@@ -122,6 +134,7 @@
             display: flex;
             gap: 2rem;
             list-style: none;
+            align-items: center;
         }
 
         .nav-links a {
@@ -150,6 +163,30 @@
 
         .nav-links a:hover {
             color: var(--neon-blue);
+        }
+
+        /* Language switch */
+        .lang-switch {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .lang-switch button {
+            background: transparent;
+            color: var(--text-light);
+            border: 1px solid rgba(255,255,255,0.06);
+            padding: 0.35rem 0.6rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+
+        .lang-switch button.active {
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            color: #0a0a0f;
+            border-color: transparent;
         }
 
         /* Hero Section */
@@ -562,6 +599,11 @@
         }
 
         /* Responsive */
+        @media (max-width: 1024px) {
+            nav { padding: 1rem 4%; }
+            .contact-container { grid-template-columns: 1fr; gap: 2rem; }
+        }
+
         @media (max-width: 768px) {
             .nav-links {
                 display: none;
@@ -603,7 +645,7 @@
     </style>
 <base target="_blank">
 </head>
-<body>
+<body class="lang-ar">
     <!-- Background Animation -->
     <div class="bg-animation"></div>
     <div class="particles" id="particles"></div>
@@ -612,14 +654,20 @@
     <nav>
         <div class="logo">
             <i class="fas fa-fingerprint"></i>
-            Fennec Tech
+            <span class="ar">Fennec Tech</span><span class="en">Fennec Tech</span>
         </div>
-        <ul class="nav-links">
-            <li><a href="#home">الرئيسية / Home</a></li>
-            <li><a href="#products">منتجاتنا / Products</a></li>
-            <li><a href="#why-us">لماذا نحن / Why Us</a></li>
-            <li><a href="#contact">تواصل معنا / Contact</a></li>
+
+        <ul class="nav-links" aria-label="Main navigation">
+            <li><a href="#home"><span class="ar">الرئيسية</span><span class="en">Home</span></a></li>
+            <li><a href="#products"><span class="ar">منتجاتنا</span><span class="en">Products</span></a></li>
+            <li><a href="#why-us"><span class="ar">لماذا نحن</span><span class="en">Why Us</span></a></li>
+            <li><a href="#contact"><span class="ar">تواصل معنا</span><span class="en">Contact</span></a></li>
         </ul>
+
+        <div class="lang-switch" role="tablist" aria-label="Language switcher">
+            <button id="btn-ar" data-lang="ar" class="active" aria-pressed="true" title="العربية">ع</button>
+            <button id="btn-en" data-lang="en" aria-pressed="false" title="English">EN</button>
+        </div>
     </nav>
 
     <!-- Hero Section -->
@@ -627,21 +675,23 @@
         <div class="hero-content">
             <div class="hero-badge">
                 <i class="fas fa-rocket"></i>
-                شركة ناشئة في عالم التقنية
+                <span class="ar">شركة ناشئة في عالم التقنية</span>
+                <span class="en">A tech startup</span>
             </div>
-            <h1>مرحبًا بكم في Fennec Tech</h1>
-            <h2>Welcome to Fennec Tech</h2>
+            <h1><span class="ar">مرحبًا بكم في Fennec Tech</span><span class="en">Welcome to Fennec Tech</span></h1>
+            <h2><span class="ar">دمج التقنية، الألعاب، والحلول المهنية</span><span class="en">Combining tech, games, and professional solutions</span></h2>
             <p>
-                ثعلب الصحراء للتقنية هي شركة ناشئة متخصصة في تطوير الألعاب التعليمية والمسلية، تطبيقات الإدارة الذكية، وتطبيقات قانونية موجهة لمهتمي القانون الجزائري. أسسها سامي رميلي، وهدفنا دمج التقنية، الألعاب، والحلول المهنية لجميع المستخدمين.
+                <span class="ar">ثعلب الصحراء للتقنية هي شركة ناشئة متخصصة في تطوير الألعاب التعليمية والمسلية، تطبيقات الإدارة الذكية، وتطبيقات قانونية موجهة لمهتمي القانون الجزائري. أسسها سامي رميلي، وهدفنا دمج التقنية، الألعاب، والحلول المهنية لجميع المستخدمين.</span>
+                <span class="en">Fennec Tech is a startup specializing in educational and entertaining games, smart management apps, and legal apps tailored for Algerian law practitioners. Founded by Sami Remili, our goal is to combine technology, gaming, and professional solutions for everyone.</span>
             </p>
             <div class="hero-buttons">
                 <a href="#products" class="btn btn-primary">
                     <i class="fas fa-th-large"></i>
-                    مشاهدة المنتجات
+                    <span class="ar">مشاهدة المنتجات</span><span class="en">View Products</span>
                 </a>
                 <a href="#contact" class="btn btn-secondary">
                     <i class="fas fa-envelope"></i>
-                    تواصل معنا
+                    <span class="ar">تواصل معنا</span><span class="en">Contact Us</span>
                 </a>
             </div>
         </div>
@@ -650,71 +700,71 @@
     <!-- Products Section -->
     <section id="products">
         <div class="section-header fade-in">
-            <h2>منتجاتنا</h2>
-            <p>Products & Applications</p>
+            <h2><span class="ar">منتجاتنا</span><span class="en">Our Products</span></h2>
+            <p><span class="ar">تطبيقات ومنتجات متاحة</span><span class="en">Products & Applications</span></p>
         </div>
         <div class="products-grid">
             <div class="product-card fade-in">
                 <div class="product-icon">
                     <i class="fas fa-puzzle-piece"></i>
                 </div>
-                <h3>ألغاز الكلمات</h3>
+                <h3><span class="ar">ألغاز الكلمات</span><span class="en">Word Puzzle</span></h3>
                 <div class="en-title">Word Puzzle</div>
-                <p>لعبة ألغاز كلمات مسلية لجميع الأعمار. Fun and challenging word puzzle game for all ages.</p>
+                <p><span class="ar">لعبة ألغاز كلمات مسلية لجميع الأعمار.</span><span class="en">Fun and challenging word puzzle game for all ages.</span></p>
             </div>
 
             <div class="product-card fade-in">
                 <div class="product-icon">
                     <i class="fas fa-brain"></i>
                 </div>
-                <h3>مصفوفة الذكاء</h3>
+                <h3><span class="ar">مصفوفة الذكاء</span><span class="en">Intelligence Matrix</span></h3>
                 <div class="en-title">Intelligence Matrix</div>
-                <p>تطبيق لتنمية الذكاء مع تمارين للذاكرة والتركيز والحساب. Brain-training app with memory, focus, and math exercises.</p>
+                <p><span class="ar">تطبيق لتنمية الذكاء مع تمارين للذاكرة والتركيز والحساب.</span><span class="en">Brain-training app with memory, focus, and math exercises.</span></p>
             </div>
 
             <div class="product-card fade-in">
                 <div class="product-icon">
                     <i class="fas fa-gamepad"></i>
                 </div>
-                <h3>ثعبان النيون</h3>
+                <h3><span class="ar">ثعبان النيون</span><span class="en">Neon Snake</span></h3>
                 <div class="en-title">Neon Snake</div>
-                <p>لعبة الثعبان الكلاسيكية بحلة نيون حديثة وجرافيكس جذاب. Classic snake game with neon graphics and modern twists.</p>
+                <p><span class="ar">لعبة الثعبان الكلاسيكية بحلة نيون حديثة وجرافيكس جذاب.</span><span class="en">Classic snake game with neon graphics and modern twists.</span></p>
             </div>
 
             <div class="product-card fade-in">
                 <div class="product-icon">
                     <i class="fas fa-plane-departure"></i>
                 </div>
-                <h3>منصة الموردين</h3>
+                <h3><span class="ar">منصة الموردين</span><span class="en">Suppliers Platform</span></h3>
                 <div class="en-title">Suppliers Platform</div>
-                <p>منصة تشغيل للموردين في مطارات الشرق. Operation platform for Eastern Airports suppliers.</p>
+                <p><span class="ar">منصة تشغيل للموردين في مطارات الشرق.</span><span class="en">Operation platform for Eastern Airports suppliers.</span></p>
             </div>
 
             <div class="product-card fade-in">
                 <div class="product-icon">
                     <i class="fas fa-dumbbell"></i>
                 </div>
-                <h3>إدارة القاعات الرياضية</h3>
+                <h3><span class="ar">إدارة القاعات الرياضية</span><span class="en">Fennec Admin</span></h3>
                 <div class="en-title">Fennec Admin</div>
-                <p>تطبيق لإدارة القاعات الرياضية، مراقبة الرياضيين، وتقييم أدائهم. App to manage sport halls, monitor athletes, and evaluate performance.</p>
+                <p><span class="ar">تطبيق لإدارة القاعات الرياضية، مراقبة الرياضيين، وتقييم أدائهم.</span><span class="en">App to manage sport halls, monitor athletes, and evaluate performance.</span></p>
             </div>
 
             <div class="product-card fade-in">
                 <div class="product-icon">
                     <i class="fas fa-running"></i>
                 </div>
-                <h3>ثعلب الرياضي</h3>
+                <h3><span class="ar">ثعلب الرياضي</span><span class="en">Fennec Athlete</span></h3>
                 <div class="en-title">Fennec Athlete</div>
-                <p>تطبيق لمتابعة وتقييم الرياضيين للمدربين واللاعبين. Tracking and evaluation app for athletes and coaches.</p>
+                <p><span class="ar">تطبيق لمتابعة وتقييم الرياضيين للمدربين واللاعبين.</span><span class="en">Tracking and evaluation app for athletes and coaches.</span></p>
             </div>
 
             <div class="product-card fade-in">
                 <div class="product-icon">
                     <i class="fas fa-balance-scale"></i>
                 </div>
-                <h3>التطبيق القانوني</h3>
+                <h3><span class="ar">التطبيق القانوني</span><span class="en">Legal App</span></h3>
                 <div class="en-title">Legal App</div>
-                <p>تطبيق قانوني مع نظام تعليم gamification وقواعد القانون الجزائري. Provides gamified learning and legal resources under Algerian law.</p>
+                <p><span class="ar">تطبيق قانوني مع نظام تعليم gamification وقواعد القانون الجزائري.</span><span class="en">Provides gamified learning and legal resources under Algerian law.</span></p>
             </div>
         </div>
     </section>
@@ -722,40 +772,40 @@
     <!-- Why Us Section -->
     <section class="why-us" id="why-us">
         <div class="section-header fade-in">
-            <h2>لماذا Fennec Tech؟</h2>
-            <p>Why Choose Us?</p>
+            <h2><span class="ar">لماذا Fennec Tech؟</span><span class="en">Why Fennec Tech?</span></h2>
+            <p><span class="ar">لماذا تختارنا؟</span><span class="en">Why Choose Us?</span></p>
         </div>
         <div class="features-grid">
             <div class="feature-item fade-in">
                 <div class="feature-icon">
                     <i class="fas fa-graduation-cap"></i>
                 </div>
-                <h3>تطبيقات تعليمية واحترافية</h3>
-                <p>Professional & educational apps tailored for your needs</p>
+                <h3><span class="ar">تطبيقات تعليمية واحترافية</span><span class="en">Educational & Professional Apps</span></h3>
+                <p><span class="ar">تطبيقات مخصصة تلبي احتياجاتك.</span><span class="en">Professional & educational apps tailored for your needs.</span></p>
             </div>
 
             <div class="feature-item fade-in">
                 <div class="feature-icon">
                     <i class="fas fa-trophy"></i>
                 </div>
-                <h3>Gamification للتعليم</h3>
-                <p>Focus on gamification for learning and training experiences</p>
+                <h3><span class="ar">Gamification للتعليم</span><span class="en">Gamified Learning</span></h3>
+                <p><span class="ar">نستخدم آليات اللعب لتحسين التعلم.</span><span class="en">Focus on gamification for learning and training experiences.</span></p>
             </div>
 
             <div class="feature-item fade-in">
                 <div class="feature-icon">
                     <i class="fas fa-cogs"></i>
                 </div>
-                <h3>حلول إدارة ذكية</h3>
-                <p>Smart management solutions for sports and legal sectors</p>
+                <h3><span class="ar">حلول إدارة ذكية</span><span class="en">Smart Management Solutions</span></h3>
+                <p><span class="ar">حلول متقدمة للقطاع الرياضي والقانوني.</span><span class="en">Smart management solutions for sports and legal sectors.</span></p>
             </div>
 
             <div class="feature-item fade-in">
                 <div class="feature-icon">
                     <i class="fas fa-paint-brush"></i>
                 </div>
-                <h3>تصميم مبتكر وعصري</h3>
-                <p>Innovative design with modern, user-friendly interface</p>
+                <h3><span class="ar">تصميم مبتكر وعصري</span><span class="en">Modern & Innovative Design</span></h3>
+                <p><span class="ar">واجهات مستخدم سهلة وجذابة.</span><span class="en">Innovative design with modern, user-friendly interface.</span></p>
             </div>
         </div>
     </section>
@@ -763,18 +813,18 @@
     <!-- Contact Section -->
     <section id="contact">
         <div class="section-header fade-in">
-            <h2>تواصل معنا</h2>
-            <p>Contact Us</p>
+            <h2><span class="ar">تواصل معنا</span><span class="en">Contact Us</span></h2>
+            <p><span class="ar">نحن هنا للاستماع إليك</span><span class="en">We are here to help</span></p>
         </div>
         <div class="contact-container">
             <div class="contact-info fade-in">
-                <h3>نحن هنا لمساعدتك</h3>
-                <p>هل لديك سؤال أو اقتراح أو ترغب في التعاون معنا؟ لا تتردد في التواصل!</p>
+                <h3><span class="ar">نحن هنا لمساعدتك</span><span class="en">We're here to help</span></h3>
+                <p><span class="ar">هل لديك سؤال أو اقتراح أو ترغب في التعاون معنا؟ لا تتردد في التواصل!</span><span class="en">Have a question, suggestion, or want to collaborate? Don't hesitate to reach out!</span></p>
 
                 <div class="contact-item">
                     <i class="fas fa-envelope"></i>
                     <div>
-                        <strong>البريد الإلكتروني / Email</strong>
+                        <strong><span class="ar">البريد الإلكتروني</span><span class="en">Email</span></strong>
                         <p>fennectechn@gmail.com</p>
                     </div>
                 </div>
@@ -782,16 +832,16 @@
                 <div class="contact-item">
                     <i class="fas fa-user"></i>
                     <div>
-                        <strong>المؤسس / Founder</strong>
-                        <p>Sami Remili / سامي رميلي</p>
+                        <strong><span class="ar">المؤسس</span><span class="en">Founder</span></strong>
+                        <p><span class="ar">سامي رميلي</span><span class="en">Sami Remili</span></p>
                     </div>
                 </div>
 
                 <div class="contact-item">
                     <i class="fas fa-map-marker-alt"></i>
                     <div>
-                        <strong>الموقع / Location</strong>
-                        <p>Algeria</p>
+                        <strong><span class="ar">الموقع</span><span class="en">Location</span></strong>
+                        <p><span class="ar">الجزائر</span><span class="en">Algeria</span></p>
                     </div>
                 </div>
             </div>
@@ -799,20 +849,20 @@
             <div class="contact-form fade-in">
                 <form onsubmit="handleSubmit(event)">
                     <div class="form-group">
-                        <label>الاسم / Name</label>
-                        <input type="text" placeholder="أدخل اسمك" required>
+                        <label><span class="ar">الاسم</span><span class="en">Name</span></label>
+                        <input type="text" placeholder="أدخل اسمك / Enter your name" required>
                     </div>
                     <div class="form-group">
-                        <label>البريد الإلكتروني / Email</label>
+                        <label><span class="ar">البريد الإلكتروني</span><span class="en">Email</span></label>
                         <input type="email" placeholder="your@email.com" required>
                     </div>
                     <div class="form-group">
-                        <label>الرسالة / Message</label>
-                        <textarea placeholder="اكتب رسالتك هنا..." required></textarea>
+                        <label><span class="ar">الرسالة</span><span class="en">Message</span></label>
+                        <textarea placeholder="اكتب رسالتك هنا... / Write your message here..." required></textarea>
                     </div>
                     <button type="submit" class="btn btn-primary" style="width: 100%;">
                         <i class="fas fa-paper-plane"></i>
-                        إرسال الرسالة
+                        <span class="ar">إرسال الرسالة</span><span class="en">Send Message</span>
                     </button>
                 </form>
             </div>
@@ -824,11 +874,11 @@
         <div class="footer-content">
             <div class="footer-logo">
                 <i class="fas fa-fingerprint"></i>
-                Fennec Tech
+                <span class="ar">Fennec Tech</span><span class="en">Fennec Tech</span>
             </div>
             <div class="footer-info">
-                <p>ثعلب الصحراء للتقنية - Fennec Tech</p>
-                <p>المؤسس: سامي رميلي | Founder: Sami Remili</p>
+                <p><span class="ar">ثعلب الصحراء للتقنية - Fennec Tech</span><span class="en">Fennec Tech</span></p>
+                <p><span class="ar">المؤسس: سامي رميلي</span><span class="en">Founder: Sami Remili</span></p>
                 <p>fennectechn@gmail.com</p>
             </div>
             <div class="social-links">
@@ -838,7 +888,7 @@
                 <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
             </div>
             <div class="copyright">
-                <p>Copyright © 2026 Fennec Tech. جميع الحقوق محفوظة</p>
+                <p><span class="ar">Copyright © 2026 Fennec Tech. جميع الحقوق محفوظة</span><span class="en">Copyright © 2026 Fennec Tech. All rights reserved.</span></p>
             </div>
         </div>
     </footer>
@@ -889,7 +939,12 @@
         // Form submission
         function handleSubmit(e) {
             e.preventDefault();
-            alert('شكراً لتواصلك معنا! سنقوم بالرد عليك في أقرب وقت.\n\nThank you for contacting us! We will reply soon.');
+            const lang = document.body.classList.contains('lang-en') ? 'en' : 'ar';
+            if (lang === 'en') {
+                alert('Thank you for contacting us! We will reply soon.');
+            } else {
+                alert('شكراً لتواصلك معنا! سنقوم بالرد عليك في أقرب وقت.');
+            }
             e.target.reset();
         }
 
@@ -902,6 +957,54 @@
                 nav.style.background = 'rgba(10, 10, 15, 0.9)';
             }
         });
+
+        // Language switching
+        const btnAr = document.getElementById('btn-ar');
+        const btnEn = document.getElementById('btn-en');
+
+        function applyLanguage(lang) {
+            const body = document.body;
+            if (lang === 'en') {
+                body.classList.remove('lang-ar');
+                body.classList.add('lang-en');
+                document.documentElement.lang = 'en';
+                document.documentElement.dir = 'ltr';
+                btnEn.classList.add('active');
+                btnAr.classList.remove('active');
+                btnEn.setAttribute('aria-pressed', 'true');
+                btnAr.setAttribute('aria-pressed', 'false');
+            } else {
+                body.classList.remove('lang-en');
+                body.classList.add('lang-ar');
+                document.documentElement.lang = 'ar';
+                document.documentElement.dir = 'rtl';
+                btnAr.classList.add('active');
+                btnEn.classList.remove('active');
+                btnAr.setAttribute('aria-pressed', 'true');
+                btnEn.setAttribute('aria-pressed', 'false');
+            }
+            // Persist preference
+            try {
+                localStorage.setItem('fennec-lang', lang);
+            } catch (e) {
+                // ignore
+            }
+        }
+
+        btnAr.addEventListener('click', () => applyLanguage('ar'));
+        btnEn.addEventListener('click', () => applyLanguage('en'));
+
+        // On load: check saved preference or default to Arabic
+        (function initLanguage() {
+            let saved = null;
+            try {
+                saved = localStorage.getItem('fennec-lang');
+            } catch (e) {
+                saved = null;
+            }
+            const userPref = saved || (navigator.language && navigator.language.startsWith('en') ? 'en' : null);
+            applyLanguage(userPref || 'ar');
+        })();
     </script>
 </body>
 </html>
