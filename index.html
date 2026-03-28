@@ -642,6 +642,11 @@
             opacity: 1;
             transform: translateY(0);
         }
+        .form-status {
+            font-weight: 700;
+            margin-top: 0.5rem;
+            color: var(--neon-blue);
+        }
     </style>
 <base target="_blank">
 </head>
@@ -844,26 +849,31 @@
                         <p><span class="ar">الجزائر</span><span class="en">Algeria</span></p>
                     </div>
                 </div>
+
+                <p style="color:var(--text-gray); font-size:0.95rem; margin-top:1rem;"> <span class="ar">نستخدم هذه الوسيلة لإيصال رسائلكم مباشرة إلى بريدنا الإلكتروني. قد تتطلب الخدمة الأولى تأكيد بريدك الإلكتروني من مزود الاستقبال (تحقق من صندوق الوارد).</span><span class="en">We use this form to deliver messages directly to our email. The first time you receive a message it may require email verification—please check your inbox.</span></p>
             </div>
 
             <div class="contact-form fade-in">
-                <form onsubmit="handleSubmit(event)">
+                <form id="contact-form" novalidate>
+                    <input type="hidden" name="_subject" value="New contact message from website">
+                    <input type="hidden" name="_captcha" value="false">
                     <div class="form-group">
                         <label><span class="ar">الاسم</span><span class="en">Name</span></label>
-                        <input type="text" placeholder="أدخل اسمك / Enter your name" required>
+                        <input name="name" type="text" placeholder="أدخل اسمك / Enter your name" required>
                     </div>
                     <div class="form-group">
                         <label><span class="ar">البريد الإلكتروني</span><span class="en">Email</span></label>
-                        <input type="email" placeholder="your@email.com" required>
+                        <input name="email" type="email" placeholder="your@email.com" required>
                     </div>
                     <div class="form-group">
                         <label><span class="ar">الرسالة</span><span class="en">Message</span></label>
-                        <textarea placeholder="اكتب رسالتك هنا... / Write your message here..." required></textarea>
+                        <textarea name="message" placeholder="اكتب رسالتك هنا... / Write your message here..." required></textarea>
                     </div>
                     <button type="submit" class="btn btn-primary" style="width: 100%;">
                         <i class="fas fa-paper-plane"></i>
                         <span class="ar">إرسال الرسالة</span><span class="en">Send Message</span>
                     </button>
+                    <div id="form-status" class="form-status" role="status" aria-live="polite"></div>
                 </form>
             </div>
         </div>
@@ -936,17 +946,44 @@
             });
         });
 
-        // Form submission
-        function handleSubmit(e) {
+        // Contact form submission: AJAX to Formsubmit.co
+        async function handleSubmit(e) {
             e.preventDefault();
+            const form = document.getElementById('contact-form');
+            const status = document.getElementById('form-status');
             const lang = document.body.classList.contains('lang-en') ? 'en' : 'ar';
-            if (lang === 'en') {
-                alert('Thank you for contacting us! We will reply soon.');
-            } else {
-                alert('شكراً لتواصلك معنا! سنقوم بالرد عليك في أقرب وقت.');
+            const submitBtn = form.querySelector('button[type="submit"]');
+
+            status.textContent = (lang === 'en') ? 'Sending...' : 'جاري الإرسال...';
+            submitBtn.disabled = true;
+
+            try {
+                const formData = new FormData(form);
+                const response = await fetch('https://formsubmit.co/ajax/fennectechn@gmail.com', {
+                    method: 'POST',
+                    body: formData
+                });
+                const json = await response.json();
+                if (response.ok) {
+                    status.textContent = (lang === 'en') ? 'Message sent — we will reply soon.' : 'تم إرسال الرسالة — سنرد عليك قريباً.';
+                    form.reset();
+                } else {
+                    status.textContent = (lang === 'en') ? 'Error sending message. Please try again later.' : 'حدث خطأ أثناء الإرسال. حاول مرة أخرى لاحقاً.';
+                    console.error('Form submit error:', json);
+                }
+            } catch (err) {
+                console.error(err);
+                status.textContent = (lang === 'en') ? 'Network error. Please try later.' : 'خطأ في الشبكة. حاول لاحقاً.';
+            } finally {
+                submitBtn.disabled = false;
             }
-            e.target.reset();
         }
+
+        // Attach handler to form
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('contact-form');
+            if (form) form.addEventListener('submit', handleSubmit);
+        });
 
         // Navbar scroll effect
         window.addEventListener('scroll', () => {
