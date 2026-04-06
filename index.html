@@ -15,6 +15,9 @@
             --text-light: #ffffff;
             --text-gray: #a0a0b0;
             --accent-glow: rgba(0, 243, 255, 0.3);
+            --element-yellow: #f4c430;
+            --brain-blue: #4facfe;
+            --budget-green: #10b981;
         }
 
         * {
@@ -371,6 +374,52 @@
             border: 1px solid rgba(0, 243, 255, 0.3);
         }
 
+        /* Featured Products Special Styling */
+        .product-card.featured {
+            border: 2px solid rgba(244, 196, 48, 0.3);
+            background: linear-gradient(135deg, var(--card-bg) 0%, rgba(244, 196, 48, 0.05) 100%);
+        }
+
+        .product-card.featured .product-icon {
+            background: linear-gradient(135deg, rgba(244, 196, 48, 0.3), rgba(244, 196, 48, 0.1));
+            border-color: rgba(244, 196, 48, 0.5);
+            color: var(--element-yellow);
+        }
+
+        .product-card.featured::before {
+            background: linear-gradient(90deg, var(--element-yellow), #ff6b35);
+        }
+
+        .product-card.featured-brain {
+            border: 2px solid rgba(79, 172, 254, 0.3);
+            background: linear-gradient(135deg, var(--card-bg) 0%, rgba(79, 172, 254, 0.05) 100%);
+        }
+
+        .product-card.featured-brain .product-icon {
+            background: linear-gradient(135deg, rgba(79, 172, 254, 0.3), rgba(79, 172, 254, 0.1));
+            border-color: rgba(79, 172, 254, 0.5);
+            color: var(--brain-blue);
+        }
+
+        .product-card.featured-brain::before {
+            background: linear-gradient(90deg, var(--brain-blue), #00f2fe);
+        }
+
+        .product-card.featured-budget {
+            border: 2px solid rgba(16, 185, 129, 0.3);
+            background: linear-gradient(135deg, var(--card-bg) 0%, rgba(16, 185, 129, 0.05) 100%);
+        }
+
+        .product-card.featured-budget .product-icon {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(16, 185, 129, 0.1));
+            border-color: rgba(16, 185, 129, 0.5);
+            color: var(--budget-green);
+        }
+
+        .product-card.featured-budget::before {
+            background: linear-gradient(90deg, var(--budget-green), #34d399);
+        }
+
         .product-card h3 {
             font-size: 1.4rem;
             margin-bottom: 0.5rem;
@@ -384,10 +433,44 @@
             font-family: 'Poppins', sans-serif;
         }
 
+        .product-card.featured .en-title {
+            color: var(--element-yellow);
+        }
+
+        .product-card.featured-brain .en-title {
+            color: var(--brain-blue);
+        }
+
+        .product-card.featured-budget .en-title {
+            color: var(--budget-green);
+        }
+
         .product-card p {
             color: var(--text-gray);
             font-size: 0.95rem;
             line-height: 1.7;
+        }
+
+        .featured-badge {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: linear-gradient(135deg, var(--element-yellow), #ff6b35);
+            color: #000;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .featured-badge.brain {
+            background: linear-gradient(135deg, var(--brain-blue), #00f2fe);
+            color: #fff;
+        }
+
+        .featured-badge.budget {
+            background: linear-gradient(135deg, var(--budget-green), #34d399);
+            color: #fff;
         }
 
         /* Why Us Section */
@@ -649,6 +732,7 @@
         }
     </style>
 <base target="_blank">
+<base target="_blank">
 </head>
 <body class="lang-ar">
     <!-- Background Animation -->
@@ -709,6 +793,39 @@
             <p><span class="ar">تطبيقات ومنتجات متاحة</span><span class="en">Products & Applications</span></p>
         </div>
         <div class="products-grid">
+            <!-- Element Blocks - Featured -->
+            <div class="product-card featured fade-in">
+                <span class="featured-badge"><span class="ar">جديد</span><span class="en">New</span></span>
+                <div class="product-icon">
+                    <i class="fas fa-th"></i>
+                </div>
+                <h3><span class="ar">عناصر البلوكات</span><span class="en">Element Blocks</span></h3>
+                <div class="en-title">Element Blocks</div>
+                <p><span class="ar">لعبة مطابقة العناصر المسلية - اجمع 3 عناصر متشابهة للفوز! لعبة ألغاز ملونة مع عناصر النار، الماء، التراب، الهواء والمزيد. تحديات يومية ومستويات متعددة.</span><span class="en">Fun element matching game - match 3 similar elements to win! Colorful puzzle game with Fire, Water, Earth, Air elements and more. Daily challenges and multiple levels.</span></p>
+            </div>
+
+            <!-- Brain Train - Featured -->
+            <div class="product-card featured-brain fade-in">
+                <span class="featured-badge brain"><span class="ar">شائع</span><span class="en">Popular</span></span>
+                <div class="product-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <h3><span class="ar">تدريب الدماغ</span><span class="en">Brain Train</span></h3>
+                <div class="en-title">Brain Train</div>
+                <p><span class="ar">تطبيق متكامل لتدريب العقل مع ألعاب مصغرة، تحديات يومية، وتمارين للذاكرة والتركيز. طور مهاراتك الذهنية مع نظام النقاط والإنجازات.</span><span class="en">Complete brain training app with mini-games, daily challenges, and memory & focus exercises. Develop your mental skills with points and achievements system.</span></p>
+            </div>
+
+            <!-- Smart Budget Manager - Featured -->
+            <div class="product-card featured-budget fade-in">
+                <span class="featured-badge budget"><span class="ar">عملي</span><span class="en">Practical</span></span>
+                <div class="product-icon">
+                    <i class="fas fa-wallet"></i>
+                </div>
+                <h3><span class="ar">مدير الميزانية الذكي</span><span class="en">Smart Budget Manager</span></h3>
+                <div class="en-title">Smart Budget Manager</div>
+                <p><span class="ar">تطبيق إدارة مالية ذكي مع تحليلات شهرية وأسبوعية وسنوية، رسوم بيانية تفاعلية، وتتبع المصروفات حسب الفئة. متوفر بالدينار الجزائري.</span><span class="en">Smart financial management app with monthly, weekly and yearly analytics, interactive charts, and expense tracking by category. Available in Algerian Dinar.</span></p>
+            </div>
+
             <div class="product-card fade-in">
                 <div class="product-icon">
                     <i class="fas fa-puzzle-piece"></i>
