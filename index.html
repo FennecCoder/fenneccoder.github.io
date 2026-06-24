@@ -129,6 +129,8 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            text-decoration: none;
+            cursor: pointer;
         }
 
         .logo i {
@@ -152,6 +154,7 @@
             position: relative;
             padding: 0.5rem 0;
             transition: color 0.3s;
+            cursor: pointer;
         }
 
         .nav-links a::after {
@@ -736,8 +739,6 @@
             color: var(--neon-blue);
         }
     </style>
-<base target="_blank">
-<base target="_blank">
 </head>
 <body class="lang-ar">
     <!-- Background Animation -->
@@ -746,10 +747,10 @@
 
     <!-- Navigation -->
     <nav>
-        <div class="logo">
+        <a href="#home" class="logo">
             <i class="fas fa-fingerprint"></i>
             <span class="ar">Fennec Tech</span><span class="en">Fennec Tech</span>
-        </div>
+        </a>
 
         <ul class="nav-links" aria-label="Main navigation">
             <li><a href="#home"><span class="ar">الرئيسية</span><span class="en">Home</span></a></li>
@@ -864,67 +865,74 @@
                 <p><span class="ar">تطبيق إدارة مالية ذكي مع تحليلات شهرية وأسبوعية وسنوية، رسوم بيانية تفاعلية، وتتبع المصروفات.</span><span class="en">Smart financial management app with monthly, weekly, and yearly analytics, interactive charts, and expense tracking.</span></p>
             </div>
 
+            <!-- Word Puzzle -->
             <div class="product-card fade-in">
                 <div class="product-icon">
                     <i class="fas fa-puzzle-piece"></i>
                 </div>
                 <h3><span class="ar">ألغاز الكلمات</span><span class="en">Word Puzzle</span></h3>
                 <div class="en-title">Word Puzzle</div>
-                <p><span class="ar">لعبة ألغاز كلمات مسلية لجميع الأعمار.</span><span class="en">Fun and challenging word puzzle game for all ages.</span></p>
+                <p><span class="ar">لعبة ألغاز كلمات ممتعة وجذابة مناسبة لجميع الأعمار. حل الألغاز، اكسب النقاط، وتحدى أصدقاءك! اللعبة سهلة التعلم وممتلئة بتحديات مثيرة لتحفيز عقلك وتحسين مهاراتك اللغوية.</span><span class="en">Word Puzzle is a fun and engaging word puzzle game suitable for all ages. Solve puzzles, earn points, and challenge your friends! The game is easy to learn and full of exciting challenges to stimulate your mind and improve your language skills.</span></p>
             </div>
 
+            <!-- Intelligence Matrix -->
             <div class="product-card fade-in">
                 <div class="product-icon">
                     <i class="fas fa-brain"></i>
                 </div>
                 <h3><span class="ar">مصفوفة الذكاء</span><span class="en">Intelligence Matrix</span></h3>
                 <div class="en-title">Intelligence Matrix</div>
-                <p><span class="ar">تطبيق لتنمية الذكاء مع تمارين للذاكرة والتركيز والحساب.</span><span class="en">Brain-training app with memory, focus, and math exercises.</span></p>
+                <p><span class="ar">مصفوفة الذكاء هي لعبة دماغية ممتعة وتحديثية تجمع بين تدريب الذاكرة والألغاز الكلمية في تجربة واحدة. استمتع بلعبتين صغيرتين مثيرتين مصممتين لتحسين تركيزك وذاكرتك ومهارات التفكير.</span><span class="en">Intelligence Matrix is a fun and challenging brain game that combines memory training and word puzzles in one experience. Enjoy two exciting mini-games designed to boost your focus, memory, and thinking skills.</span></p>
             </div>
 
+            <!-- Neon Snake -->
             <div class="product-card fade-in">
                 <div class="product-icon">
                     <i class="fas fa-gamepad"></i>
                 </div>
-                <h3><span class="ar">ثعبان النيون</span><span class="en">Neon Snake</span></h3>
+                <h3><span class="ar">ثعبان النيون</span><span class="en">Neon Snake: Arcade Game</span></h3>
                 <div class="en-title">Neon Snake: Arcade Game</div>
-                <p><span class="ar">لعبة الثعبان الكلاسيكية بحلة نيون حديثة وجرافيكس جذاب.</span><span class="en">Classic snake game with neon graphics and modern design.</span></p>
+                <p><span class="ar">ثعبان النيون - تجربة أركيد حديثة رائعة. استمتع برؤية جديدة للعبة الثعبان الكلاسيكية مع رسومات نيون مذهلة وإيقاع لعب سلس. مصممة للسرعة والدقة والمتعة، ثعبان النيون توفر تجربة إدمانية بسيطة لكن رائعة لجميع اللاعبين. تحكم بثعبانك، اجمع الطعام، كبر، وتجنب الاصطدام بنفسك. تبدو سهلة؟ جرب التغلب على أعلى درجة لك!</span><span class="en">Neon Snake – Modern Arcade Experience. Enjoy a fresh take on the classic Snake game with stunning neon visuals and smooth gameplay. Designed for speed, precision, and fun, Neon Snake offers a simple yet addictive experience. Control your snake, collect food, grow longer, and avoid crashing. Sounds simple? Try beating your high score!</span></p>
             </div>
 
+            <!-- Suppliers Platform -->
             <div class="product-card fade-in">
                 <div class="product-icon">
                     <i class="fas fa-plane-departure"></i>
                 </div>
                 <h3><span class="ar">منصة الموردين</span><span class="en">Suppliers Platform</span></h3>
                 <div class="en-title">Suppliers Platform</div>
-                <p><span class="ar">منصة تشغيل للموردين في مطارات الشرق.</span><span class="en">Operation platform for Eastern Airports suppliers.</span></p>
+                <p><span class="ar">منصة تشغيل متقدمة للموردين في مطارات الشرق. نظام إدارة فعال وآمن للموردين لتنسيق العمليات وتحسين الإنتاجية والتواصل بسهولة.</span><span class="en">Advanced operation platform for suppliers in Eastern Airports. Efficient and secure management system for suppliers to coordinate operations, improve productivity, and communicate easily.</span></p>
             </div>
 
+            <!-- Fennec Admin -->
             <div class="product-card fade-in">
                 <div class="product-icon">
                     <i class="fas fa-dumbbell"></i>
                 </div>
                 <h3><span class="ar">إدارة القاعات الرياضية</span><span class="en">Fennec Admin</span></h3>
                 <div class="en-title">Fennec Admin</div>
-                <p><span class="ar">تطبيق لإدارة القاعات الرياضية، مراقبة الرياضيين، وتقييم أدائهم.</span><span class="en">App to manage sports facilities, monitor athletes, and evaluate performance.</span></p>
+                <p><span class="ar">تطبيق متخصص لإدارة القاعات الرياضية والملاعب. مراقبة الرياضيين، تقييم أدائهم، إدارة الجداول الزمنية، وتتبع التقدم. حل شامل لتحسين الكفاءة الإدارية والرياضية.</span><span class="en">Specialized app for managing sports facilities and playgrounds. Monitor athletes, evaluate performance, manage schedules, and track progress. A comprehensive solution for improving administrative and sports efficiency.</span></p>
             </div>
 
+            <!-- Fennec Athlete -->
             <div class="product-card fade-in">
                 <div class="product-icon">
                     <i class="fas fa-running"></i>
                 </div>
                 <h3><span class="ar">ثعلب الرياضي</span><span class="en">Fennec Athlete</span></h3>
                 <div class="en-title">Fennec Athlete</div>
-                <p><span class="ar">تطبيق لمتابعة وتقييم الرياضيين للمدربين واللاعبين.</span><span class="en">Tracking and evaluation app for athletes and coaches.</span></p>
+                <p><span class="ar">تطبيق شامل لمتابعة وتقييم الرياضيين للمدربين واللاعبين. تتبع الأداء، تحليل الإحصائيات، مراقبة التقدم، وإدارة التدريبات. أداة قوية لتحسين الأداء الرياضي.</span><span class="en">Comprehensive app for tracking and evaluating athletes for coaches and players. Monitor performance, analyze statistics, track progress, and manage training. A powerful tool for improving athletic performance.</span></p>
             </div>
 
+            <!-- Legal App -->
             <div class="product-card fade-in">
                 <div class="product-icon">
                     <i class="fas fa-balance-scale"></i>
                 </div>
                 <h3><span class="ar">التطبيق القانوني</span><span class="en">Legal App</span></h3>
                 <div class="en-title">Legal App</div>
-                <p><span class="ar">تطبيق قانوني مع نظام تعليم gamification وقواعد القانون الجزائري.</span><span class="en">Provides gamified learning and Algerian law rules.</span></p>
+                <p><span class="ar">تطبيق قانوني متقدم مع نظام تعليم gamification وقواعد القانون الجزائري الشاملة. يوفر تعلمًا ممتعًا لقوانين الجزائر مع واجهة تفاعلية.</span><span class="en">Advanced legal app with gamified learning system and comprehensive Algerian law rules. Provides engaging learning for Algerian laws with interactive interface.</span></p>
             </div>
         </div>
     </section>
@@ -1010,8 +1018,9 @@
 
             <div class="contact-form fade-in">
                 <form id="contact-form" novalidate>
-                    <input type="hidden" name="_subject" value="New contact message from website">
+                    <input type="hidden" name="_subject" value="رسالة جديدة من موقع Fennec Tech">
                     <input type="hidden" name="_captcha" value="false">
+                    <input type="hidden" name="_autoresponse" value="شكراً لتواصلك معنا! سنرد عليك قريباً.">
                     <div class="form-group">
                         <label><span class="ar">الاسم</span><span class="en">Name</span></label>
                         <input name="name" type="text" placeholder="أدخل اسمك / Enter your name" required>
@@ -1111,7 +1120,7 @@
             observer.observe(element);
         });
 
-        // Form handling
+        // Form handling with Formspree
         const contactForm = document.getElementById('contact-form');
         contactForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -1128,19 +1137,39 @@
 
                 if (response.ok) {
                     formStatus.textContent = document.body.classList.contains('lang-en') 
-                        ? 'Message sent successfully!' 
-                        : 'تم إرسال الرسالة بنجاح!';
+                        ? '✅ Message sent successfully! We will contact you soon.' 
+                        : '✅ تم إرسال الرسالة بنجاح! سنتواصل معك قريباً.';
                     formStatus.style.color = 'var(--budget-green)';
                     contactForm.reset();
+                    setTimeout(() => {
+                        formStatus.textContent = '';
+                    }, 5000);
                 } else {
                     throw new Error('Form submission failed');
                 }
             } catch (error) {
                 formStatus.textContent = document.body.classList.contains('lang-en') 
-                    ? 'Error sending message. Please try again.' 
-                    : 'حدث خطأ أثناء الإرسال. يرجى المحاولة مرة أخرى.';
+                    ? '❌ Error sending message. Please try again or contact us directly.' 
+                    : '❌ حدث خطأ أثناء الإرسال. يرجى المحاولة مرة أخرى أو التواصل معنا مباشرة.';
                 formStatus.style.color = '#ff6b35';
+                setTimeout(() => {
+                    formStatus.textContent = '';
+                }, 5000);
             }
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
         });
     </script>
 </body>
