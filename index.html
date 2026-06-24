@@ -151,7 +151,9 @@
             align-items: center;
         }
 
-        .nav-links a {
+        .nav-links button {
+            background: none;
+            border: none;
             color: var(--text-light);
             text-decoration: none;
             font-weight: 600;
@@ -159,9 +161,11 @@
             padding: 0.5rem 0;
             transition: color 0.3s;
             cursor: pointer;
+            font-family: inherit;
+            font-size: inherit;
         }
 
-        .nav-links a::after {
+        .nav-links button::after {
             content: '';
             position: absolute;
             bottom: 0;
@@ -172,11 +176,11 @@
             transition: width 0.3s;
         }
 
-        .nav-links a:hover::after {
+        .nav-links button:hover::after {
             width: 100%;
         }
 
-        .nav-links a:hover {
+        .nav-links button:hover {
             color: var(--neon-blue);
         }
 
@@ -751,16 +755,16 @@
 
     <!-- Navigation -->
     <nav>
-        <a href="#home" class="logo">
+        <button onclick="scrollToHome()" class="logo" style="background: none; -webkit-background-clip: unset; -webkit-text-fill-color: unset;">
             <i class="fas fa-fingerprint"></i>
             <span class="ar">Fennec Tech</span><span class="en">Fennec Tech</span>
-        </a>
+        </button>
 
         <ul class="nav-links" aria-label="Main navigation">
-            <li><a href="#home"><span class="ar">الرئيسية</span><span class="en">Home</span></a></li>
-            <li><a href="#products"><span class="ar">منتجاتنا</span><span class="en">Products</span></a></li>
-            <li><a href="#why-us"><span class="ar">لماذا نحن</span><span class="en">Why Us</span></a></li>
-            <li><a href="#contact"><span class="ar">تواصل معنا</span><span class="en">Contact</span></a></li>
+            <li><button onclick="scrollToHome()"><span class="ar">الرئيسية</span><span class="en">Home</span></button></li>
+            <li><button onclick="scrollToProducts()"><span class="ar">منتجاتنا</span><span class="en">Products</span></button></li>
+            <li><button onclick="scrollToWhyUs()"><span class="ar">لماذا نحن</span><span class="en">Why Us</span></button></li>
+            <li><button onclick="scrollToContact()"><span class="ar">تواصل معنا</span><span class="en">Contact</span></button></li>
         </ul>
 
         <div class="lang-switch" role="tablist" aria-label="Language switcher">
@@ -784,14 +788,14 @@
                 <span class="en">Fennec Tech is a startup specializing in educational and entertaining games, smart management apps, and legal apps tailored for Algerian law practitioners. Founded by Sami Remili.</span>
             </p>
             <div class="hero-buttons">
-                <a href="#products" class="btn btn-primary">
+                <button onclick="scrollToProducts()" class="btn btn-primary" style="background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple)); color: white; box-shadow: 0 4px 30px rgba(0, 243, 255, 0.4);">
                     <i class="fas fa-th-large"></i>
                     <span class="ar">مشاهدة المنتجات</span><span class="en">View Products</span>
-                </a>
-                <a href="#contact" class="btn btn-secondary">
+                </button>
+                <button onclick="scrollToContact()" class="btn btn-secondary" style="background: transparent; color: var(--text-light); border: 2px solid var(--neon-blue);">
                     <i class="fas fa-envelope"></i>
                     <span class="ar">تواصل معنا</span><span class="en">Contact Us</span>
-                </a>
+                </button>
             </div>
         </div>
     </section>
@@ -1071,6 +1075,23 @@
     </footer>
 
     <script>
+        // Scroll functions
+        function scrollToHome() {
+            document.getElementById('home').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function scrollToProducts() {
+            document.getElementById('products').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function scrollToWhyUs() {
+            document.getElementById('why-us').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function scrollToContact() {
+            document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+        }
+
         // Language Switch
         function setLanguage(lang) {
             document.body.classList.remove('lang-ar', 'lang-en');
