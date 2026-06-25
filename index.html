@@ -127,18 +127,20 @@
         .logo {
             font-size: 1.8rem;
             font-weight: 800;
-            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
             display: flex;
             align-items: center;
             gap: 0.5rem;
             text-decoration: none;
             cursor: pointer;
+            color: var(--text-light);
         }
 
         .logo i {
             font-size: 2rem;
+            color: var(--neon-blue);
+        }
+
+        .logo-text {
             background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -743,6 +745,7 @@
             color: var(--neon-blue);
         }
     </style>
+<base target="_blank">
 </head>
 <body class="lang-ar">
     <!-- Background Animation -->
@@ -751,9 +754,9 @@
 
     <!-- Navigation -->
     <nav>
-        <button onclick="scrollToHome()" class="logo" style="background: none; -webkit-background-clip: unset; -webkit-text-fill-color: unset;">
-            <i class="fas fa-fingerprint"></i>
-            <span class="ar">Fennec Tech</span><span class="en">Fennec Tech</span>
+        <button onclick="scrollToHome()" class="logo" style="background: none; border: none; cursor: pointer; font-family: inherit; font-size: 1.8rem; font-weight: 800; display: flex; align-items: center; gap: 0.5rem; color: var(--text-light);">
+            <i class="fas fa-fingerprint" style="font-size: 2rem; color: var(--neon-blue);"></i>
+            <span style="background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Fennec Tech</span>
         </button>
 
         <ul class="nav-links" aria-label="Main navigation">
